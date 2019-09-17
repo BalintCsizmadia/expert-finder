@@ -29,6 +29,11 @@
                 "glob": "**/*.svg",
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets/leaflet/images",
+                "output": "assets/"
               }
             ],
             "styles": [
@@ -37,9 +42,16 @@
               },
               {
                 "input": "src/global.scss"
+              },
+              {
+                "input": "src/assets/leaflet/leaflet.css"
               }
             ],
-            "scripts": []
+            "scripts": [
+              {
+                "input": "src/assets/leaflet/leaflet.js"
+              }
+            ]
           },
           "configurations": {
             "production": {

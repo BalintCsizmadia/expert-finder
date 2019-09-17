@@ -1,5 +1,7 @@
 {
-  "name": "mymap",
-  "integrations": {},
+  "name": "expert-finder",
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
