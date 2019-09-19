@@ -5,8 +5,6 @@ declare let L: any;
 const MAP_TILE_LAYER = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 // map
 let map: any;
-// marker
-let marker: any;
 
 @Component({
   selector: 'app-tab1',
@@ -23,10 +21,16 @@ export class Tab1Page implements OnInit, AfterContentInit {
     L.tileLayer(MAP_TILE_LAYER, {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+    // watch:
+    // If true, starts continuous watching of location changes (instead of detecting it once)
+    // using W3C watchPosition method. You can later stop watching using map.stopLocate() method.
+    map.locate({ setView: true, maxZoom: 16, timeout: 10000, watch: true });
+    map.on('locationfound', this.onLocationFound);
+    map.on('locationerror', this.onLocationError);
   }
 
-  onLocationFound(e: any) {
-    marker = L.marker(e.latlng, {
+  onLocationFound = (locationEvent: any) => {
+    const marker = L.marker(locationEvent.latlng, {
       icon: L.icon({
         iconSize: [25, 41],
         iconAnchor: [13, 41],
@@ -34,24 +38,41 @@ export class Tab1Page implements OnInit, AfterContentInit {
         iconUrl: 'assets/marker-icon.png',
         shadowUrl: 'assets/marker-shadow.png',
       })
-    }).addTo(map);
-    L.circle(e.latlng, e.accuracy).addTo(map);
+    })
+      .addTo(map)
+      .on('click', () => {
+        this.onLocationClick(marker, locationEvent);
+      });
+    L.circle(locationEvent.latlng, locationEvent.accuracy, { opacity: 0.4, fillOpacity: 0.1 }).addTo(map);
   }
 
-  onLocationClick() {
-    marker.bindPopup(`<b>${'name'}</b><br>Phone number: ${'123'}`).openPopup();
-
+  onLocationClick(marker: any, locationEvent: any) {
+    if (marker) {
+      marker.off('click');
+      // zoom
+      marker.on('click', () => {
+        // latitude, longitude, zoomLevel
+        map.setView([locationEvent.latlng.lat, locationEvent.latlng.lng], 17);
+      });
+      marker
+        .bindPopup(`<b>${'name'}</b><br>Phone number: ${'123'}`)
+        .openPopup();
+    }
   }
 
   onLocationError(e: any) {
     alert(e.message);
   }
 
+  onLocationZoom(latitude: number, longitude: number, zoomLevel: number) {
+    // implement
+  }
+
+  // Should I use these calls here?
   ngAfterContentInit() {
-    map.locate({ setView: true, maxZoom: 16 });
-    map.on('locationfound', this.onLocationFound);
-    map.on('locationerror', this.onLocationError);
-    map.on('click', this.onLocationClick);
+    //   map.locate({ setView: true, maxZoom: 16, timeout: 10000, watch: true });
+    //   map.on('locationfound', this.onLocationFound);
+    //   map.on('locationerror', this.onLocationError);
   }
 
 }
