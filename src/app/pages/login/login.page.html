@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Login
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- lines="fulL" -->
+  <ion-list class="ion-no-margin ion-padding flexcol">
+
+    <ion-item>
+      <ion-label position="stacked">Email <ion-text color="danger">*</ion-text>
+      </ion-label>
+      <ion-input required type="email" [(ngModel)]="loginDetails.username"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Password <ion-text color="danger">*</ion-text>
+      </ion-label>
+      <ion-input required type="password" [(ngModel)]="loginDetails.password"></ion-input>
+    </ion-item>
+    <div id="message">
+      <ion-text color="danger">{{ message }}</ion-text>
+    </div>
+
+    <div id="login-registration-div" class="ion-padding">
+      <ion-button id="login-button" expand="block" type="submit" class="ion-no-margin" (click)="onLoginClick()">Login
+      </ion-button>
+      <ion-text>Sign in block</ion-text>
+    </div>
+  </ion-list>
+</ion-content>
