@@ -7,7 +7,7 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Map\n    </ion-title>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content>\n    <div id=\"map\"></div>\n    <ion-card class=\"welcome-card\">\n      <img src=\"/assets/shapes.svg\" alt=\"\" />\n      <ion-card-header>\n        <ion-card-subtitle>Get Started</ion-card-subtitle>\n        <ion-card-title>Welcome to Ionic</ion-card-title>\n      </ion-card-header>\n      <ion-card-content>\n        <p>Now that your app has been created, you'll want to start building out features and components. Check out some of the resources below for next steps.</p>\n      </ion-card-content>\n    </ion-card>\n    <ion-list lines=\"none\">\n      <ion-list-header>\n        <ion-label>Resources</ion-label>\n      </ion-list-header>\n      <ion-item href=\"https://ionicframework.com/docs/\">\n        <ion-icon slot=\"start\" color=\"medium\" name=\"book\"></ion-icon>\n        <ion-label>Ionic Documentation</ion-label>\n      </ion-item>\n      <ion-item href=\"https://ionicframework.com/docs/building/scaffolding\">\n        <ion-icon slot=\"start\" color=\"medium\" name=\"build\"></ion-icon>\n        <ion-label>Scaffold Out Your App</ion-label>\n      </ion-item>\n      <ion-item href=\"https://ionicframework.com/docs/layout/structure\">\n        <ion-icon slot=\"start\" color=\"medium\" name=\"grid\"></ion-icon>\n        <ion-label>Change Your App Layout</ion-label>\n      </ion-item>\n      <ion-item href=\"https://ionicframework.com/docs/theming/basics\">\n        <ion-icon slot=\"start\" color=\"medium\" name=\"color-fill\"></ion-icon>\n        <ion-label>Theme Your App</ion-label>\n      </ion-item>\n    </ion-list>\n</ion-content>\n"
+module.exports = "<ion-header>\n  <ion-toolbar>\n    <ion-title>\n      Map\n    </ion-title>\n  </ion-toolbar>\n</ion-header>\n\n<div id=\"map\"></div>\n\n<!-- <ion-content>\n    <ion-card class=\"welcome-card\">\n      <img src=\"/assets/shapes.svg\" alt=\"\" />\n      <ion-card-header>\n        <ion-card-subtitle>Get Started</ion-card-subtitle>\n        <ion-card-title>Welcome to Ionic</ion-card-title>\n      </ion-card-header>\n      <ion-card-content>\n        <p>Now that your app has been created, you'll want to start building out features and components. Check out some of the resources below for next steps.</p>\n      </ion-card-content>\n    </ion-card>\n    <ion-list lines=\"none\">\n      <ion-list-header>\n        <ion-label>Resources</ion-label>\n      </ion-list-header>\n      <ion-item href=\"https://ionicframework.com/docs/\">\n        <ion-icon slot=\"start\" color=\"medium\" name=\"book\"></ion-icon>\n        <ion-label>Ionic Documentation</ion-label>\n      </ion-item>\n      <ion-item href=\"https://ionicframework.com/docs/building/scaffolding\">\n        <ion-icon slot=\"start\" color=\"medium\" name=\"build\"></ion-icon>\n        <ion-label>Scaffold Out Your App</ion-label>\n      </ion-item>\n      <ion-item href=\"https://ionicframework.com/docs/layout/structure\">\n        <ion-icon slot=\"start\" color=\"medium\" name=\"grid\"></ion-icon>\n        <ion-label>Change Your App Layout</ion-label>\n      </ion-item>\n      <ion-item href=\"https://ionicframework.com/docs/theming/basics\">\n        <ion-icon slot=\"start\" color=\"medium\" name=\"color-fill\"></ion-icon>\n        <ion-label>Theme Your App</ion-label>\n      </ion-item>\n    </ion-list>\n</ion-content> -->\n"
 
 /***/ }),
 
@@ -81,14 +81,66 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 
 
+// layer
+var MAP_TILE_LAYER = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+// map
+var map;
 var Tab1Page = /** @class */ (function () {
     function Tab1Page() {
+        var _this = this;
+        this.onLocationFound = function (locationEvent) {
+            var marker = L.marker(locationEvent.latlng, {
+                icon: L.icon({
+                    iconSize: [25, 41],
+                    iconAnchor: [13, 41],
+                    popupAnchor: [0, -40],
+                    iconUrl: 'assets/marker-icon.png',
+                    shadowUrl: 'assets/marker-shadow.png',
+                })
+            })
+                .addTo(map)
+                .on('click', function () {
+                _this.onLocationClick(marker, locationEvent);
+            });
+            L.circle(locationEvent.latlng, locationEvent.accuracy, { opacity: 0.4, fillOpacity: 0.1 }).addTo(map);
+        };
     }
     Tab1Page.prototype.ngOnInit = function () {
-        var map = L.map('map').setView([51.505, -0.09], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        map = L.map('map').setView([47.498, 19.03], 13);
+        L.tileLayer(MAP_TILE_LAYER, {
             attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+        // watch:
+        // If true, starts continuous watching of location changes (instead of detecting it once)
+        // using W3C watchPosition method. You can later stop watching using map.stopLocate() method.
+        map.locate({ setView: true, maxZoom: 16, timeout: 10000, watch: true });
+        map.on('locationfound', this.onLocationFound);
+        map.on('locationerror', this.onLocationError);
+    };
+    Tab1Page.prototype.onLocationClick = function (marker, locationEvent) {
+        if (marker) {
+            marker.off('click');
+            // zoom
+            marker.on('click', function () {
+                // latitude, longitude, zoomLevel
+                map.setView([locationEvent.latlng.lat, locationEvent.latlng.lng], 17);
+            });
+            marker
+                .bindPopup("<b>" + 'name' + "</b><br>Phone number: " + '123')
+                .openPopup();
+        }
+    };
+    Tab1Page.prototype.onLocationError = function (e) {
+        alert(e.message);
+    };
+    Tab1Page.prototype.onLocationZoom = function (latitude, longitude, zoomLevel) {
+        // implement
+    };
+    // Should I use these calls here?
+    Tab1Page.prototype.ngAfterContentInit = function () {
+        //   map.locate({ setView: true, maxZoom: 16, timeout: 10000, watch: true });
+        //   map.on('locationfound', this.onLocationFound);
+        //   map.on('locationerror', this.onLocationError);
     };
     Tab1Page = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
