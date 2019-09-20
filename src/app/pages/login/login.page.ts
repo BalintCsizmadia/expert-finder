@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { LoginDetails } from 'src/app/models/login-details';
 import { AuthService } from 'src/app/services/auth.service';
 import { NavController } from '@ionic/angular';
-import { Message } from './message';
+import { TranslateService } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'app-login',
@@ -14,19 +15,22 @@ export class LoginPage implements OnInit {
   loginDetails: LoginDetails = new LoginDetails();
   message: string;
 
-  constructor(private authService: AuthService, private navCtrl: NavController) { }
+  constructor(
+    private authService: AuthService,
+    private navCtrl: NavController,
+    private translateService: TranslateService) { }
 
   ngOnInit() {
   }
 
   onLoginClick() {
     if (!this.loginDetails.username && !this.loginDetails.password) {
-      this.displayMessage(Message.ALL_FIELDS_ARE_EMPTY);
+      this.displayMessage('login.all-empty');
     } else if (!this.loginDetails.username) {
-      this.displayMessage(Message.MISSING_EMAIL);
+      this.displayMessage('login.missing-email');
       return;
     } else if (!this.loginDetails.password) {
-      this.displayMessage(Message.MISSING_PASSWORD);
+      this.displayMessage('login.missing-password');
       return;
     } else {
       this.loginSuccess();
@@ -34,7 +38,14 @@ export class LoginPage implements OnInit {
   }
 
   displayMessage(message: string) {
-    this.message = message;
+    try {
+      this.translateService.get(message).subscribe(
+        (translatedMessage: string) => {
+          this.message = translatedMessage;
+        });
+    } catch (err) {
+      console.error('Translation error: ' + err.message);
+    }
   }
 
   loginSuccess() {

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Login
+      {{ 'login.title' | translate }}
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -17,18 +17,23 @@
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Password <ion-text color="danger">*</ion-text>
+      <ion-label position="stacked">{{ 'login.password' | translate }} <ion-text color="danger">*</ion-text>
       </ion-label>
       <ion-input required type="password" [(ngModel)]="loginDetails.password"></ion-input>
     </ion-item>
     <div id="message">
-      <ion-text color="danger">{{ message }}</ion-text>
+      <ion-text color="danger">{{ message | translate }}</ion-text>
     </div>
 
     <div id="login-registration-div" class="ion-padding">
-      <ion-button id="login-button" expand="block" type="submit" class="ion-no-margin" (click)="onLoginClick()">Login
+      <ion-button id="login-button" expand="block" type="submit" class="ion-no-margin" (click)="onLoginClick()">
+        {{ 'login.login-text' | translate }}
       </ion-button>
-      <ion-text>Sign up block</ion-text>
+      <ion-text>{{ 'login.registration' | translate }}</ion-text>
     </div>
   </ion-list>
+  <!-- TODO this is just a TEST -->
+  <button (click)="translateService.use('en')">en</button>
+  <button (click)="translateService.use('hu')">hu</button>
+
 </ion-content>
