@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Router } from '@angular/router';
 import { isUndefined } from 'util';
 import { LoginDetails } from '../models/login-details';
 import { User } from '../models/user';
@@ -12,15 +11,17 @@ import { User } from '../models/user';
 })
 export class AuthService {
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient) { }
 
 
   getAuth(loginDetails?: LoginDetails): Observable<User> {
-    const httpOptions = { headers: null };
+    let httpOptions = {};
     if (!isUndefined(loginDetails)) {
-      httpOptions.headers = new HttpHeaders({
-        Authorization: 'Basic ' + window.btoa(loginDetails.username + ':' + loginDetails.password)
-      });
+      const headers = new HttpHeaders();
+      headers.append('Authorization', 'Basic ' + window.btoa(loginDetails.username + ':' + loginDetails.password));
+      httpOptions = {
+        headers
+      };
     }
     return this.http.get<User>('/api/auth', httpOptions);
   }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { LoginDetails } from 'src/app/models/login-details';
 import { AuthService } from 'src/app/services/auth.service';
 import { NavController } from '@ionic/angular';
+import { Message } from './message';
 
 @Component({
   selector: 'app-login',
@@ -19,16 +20,13 @@ export class LoginPage implements OnInit {
   }
 
   onLoginClick() {
-    // this.displayMessage('');
     if (!this.loginDetails.username && !this.loginDetails.password) {
-      this.displayMessage('Please fill out the given fields');
+      this.displayMessage(Message.ALL_FIELDS_ARE_EMPTY);
     } else if (!this.loginDetails.username) {
-      this.displayMessage('Missing email address');
-      console.error('Missing email');
+      this.displayMessage(Message.MISSING_EMAIL);
       return;
     } else if (!this.loginDetails.password) {
-      this.displayMessage('Missing password');
-      console.error('Missing password');
+      this.displayMessage(Message.MISSING_PASSWORD);
       return;
     } else {
       this.loginSuccess();
@@ -40,7 +38,10 @@ export class LoginPage implements OnInit {
   }
 
   loginSuccess() {
-    // this.authService.getAuth(this.loginDetails);
+    // TODO backend implementation missing
+    //  this.authService.getAuth(this.loginDetails).subscribe(user => {
+    //    console.log(user);
+    //  });
     // TODO if success
     this.navCtrl.navigateForward('/page/tabs/tab1');
 
