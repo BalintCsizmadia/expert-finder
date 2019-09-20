@@ -1,0 +1,14 @@
+{
+    "login": {
+        "title": "Login",
+        "login-text": "Sign in",
+        "password": "Password",
+        "all-empty": "Please fill out the given field",
+        "missing-email": "Email address is missing",
+        "missing-password": "Password is missing",
+        "registration": "Sign up block"
+    },
+    "map": {
+        "title": "Map"
+    }
+}

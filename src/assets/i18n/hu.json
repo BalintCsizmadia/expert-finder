@@ -1,0 +1,14 @@
+{
+    "login": {
+        "title": "Bejelentkezés",
+        "login-text": "Bejelentkezés",
+        "password": "Jelszó",
+        "all-empty": "Kérjük töltse ki a megadott mezőket",
+        "missing-email": "Kérjük adjon meg egy email címet",
+        "missing-password": "Kérjük adjon meg egy jelszót",
+        "registration": "Regisztráció"
+    },
+    "map": {
+        "title": "Térkép"
+    }
+}
