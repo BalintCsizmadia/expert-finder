@@ -1,14 +1,36 @@
 {
+    "clear": "",
+    "registration": {
+        "title": "Registration",
+        "registration-text": "Sign up",
+        "first-name": "First name",
+        "last-name": "Last name",
+        "phone-number": "Phone number",
+        "profession": "Profession",
+        "all-empty": "Please fill out the given field",
+        "missing-email": "Email address is missing",
+        "missing-password": "Password is missing",
+        "short-password": "5 characters minimum",
+        "missing-first-name": "Missing first name",
+        "missing-last-name": "Missing last name",
+        "missing-phone-number": "Missing phone number",
+        "missing-profession": "Select a profession",
+        "professions": ["A", "B", "C"]
+    },
     "login": {
         "title": "Login",
         "login-text": "Sign in",
         "password": "Password",
+        "registration": "Sign up",
         "all-empty": "Please fill out the given field",
         "missing-email": "Email address is missing",
-        "missing-password": "Password is missing",
-        "registration": "Sign up block"
+        "missing-password": "Password is missing"
     },
     "map": {
         "title": "Map"
+    },
+    "state": {
+        "available": "Available",
+        "not-available": "Not available"
     }
 }

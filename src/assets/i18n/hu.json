@@ -1,14 +1,36 @@
 {
+    "clear": "",
+    "registration": {
+        "title": "Regisztráció",
+        "registration-text": "Regisztráció",
+        "first-name": "Keresztnév",
+        "last-name": "Vezetéknév",
+        "phone-number": "Telefonszán",
+        "profession": "Foglalkozás",
+        "all-empty": "Kérjük töltse ki a megadott mezőket",
+        "missing-email": "Kérjük adjon meg egy email címet",
+        "missing-password": "Kérjük adjon meg egy jelszót",
+        "short-password": "Minimum 5 karakter",
+        "missing-first-name": "Kérjük adja meg a keresztnevét",
+        "missing-last-name": "Kérjük adja meg a vezetéknevét",
+        "missing-phone-number": "Kérjük adja meg a telefonszámát",
+        "missing-profession": "Kérjük válasszon az alábbi menüből",
+        "professions": ["A HUN", "B HUN", "C HUN"]
+    },
     "login": {
         "title": "Bejelentkezés",
         "login-text": "Bejelentkezés",
         "password": "Jelszó",
+        "registration": "Regisztráció",
         "all-empty": "Kérjük töltse ki a megadott mezőket",
         "missing-email": "Kérjük adjon meg egy email címet",
-        "missing-password": "Kérjük adjon meg egy jelszót",
-        "registration": "Regisztráció"
+        "missing-password": "Kérjük adjon meg egy jelszót"
     },
     "map": {
         "title": "Térkép"
+    },
+    "state": {
+        "available": "Elérhető",
+        "not-available": "Elfoglalt"
     }
 }
