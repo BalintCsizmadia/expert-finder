@@ -1,6 +1,6 @@
 export class LoginDetails {
     // tslint:disable:variable-name
-    private _username: string;
+    private _username: string; // email
     private _password: string;
 
     public get username(): string {
@@ -8,7 +8,7 @@ export class LoginDetails {
     }
 
     public set username(username: string) {
-        this._username = username;
+        this._username = username.trim().replace(/\s+/g, '');
     }
 
     public get password(): string {
@@ -16,13 +16,28 @@ export class LoginDetails {
     }
 
     public set password(password: string) {
-        if (this.isValidPassword(password)) {
-            this._password = password;
-        }
+        this._password = password.trim().replace(/\s+/g, '');
+    }
+}
+
+export class RegistrationDetails {
+    // tslint:disable:variable-name
+    private _username: string; // email
+    private _password: string;
+
+    public get username(): string {
+        return this._username;
     }
 
-    private isValidPassword(password: string) {
-        // TODO Implement
-        return true;
+    public set username(username: string) {
+        this._username = username.trim().replace(/\s+/g, '');
+    }
+
+    public get password(): string {
+        return this._password;
+    }
+
+    public set password(password: string) {
+        this._password = password.trim().replace(/\s+/g, '');
     }
 }
