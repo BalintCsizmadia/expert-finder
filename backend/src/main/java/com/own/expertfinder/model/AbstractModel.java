@@ -3,7 +3,7 @@ package com.own.expertfinder.model;
 import javax.persistence.*;
 
 @MappedSuperclass
-abstract class AbstractModel {
+public abstract class AbstractModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.own</groupId>
-	<artifactId>export-finder</artifactId>
+	<artifactId>expert-finder</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>expert-finder</name>
 	<description>Backend for Expert finder project</description>
@@ -47,6 +47,13 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.2</version>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 
