@@ -1,0 +1,107 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      {{ 'registration.title' | translate }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="regType === 0">
+  <!-- lines="fulL" -->
+  <ion-list class="ion-no-margin ion-padding flexcol">
+
+    <ion-item>
+      <ion-label position="stacked">Email <ion-text color="danger">*</ion-text>
+      </ion-label>
+      <ion-input required type="email" [(ngModel)]="registrationDetails.username"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">{{ 'login.password' | translate }} <ion-text color="danger">*</ion-text>
+      </ion-label>
+      <ion-input required type="password" [(ngModel)]="registrationDetails.password"></ion-input>
+    </ion-item>
+
+    <div id="message">
+      <ion-text color="danger">{{ message | translate }}</ion-text>
+    </div>
+
+    <div id="login-registration-div" class="ion-padding">
+      <ion-button id="login-button" expand="block" type="submit" class="ion-no-margin" (click)="onRegistrationClick()">
+        {{ 'registration.registration-text' | translate }}
+      </ion-button>
+    </div>
+
+    <button (click)="handleRegistrationTypeChange()">Registration as a service provider</button>
+
+  </ion-list>
+</ion-content>
+<!-- 
+private _firstName: string;
+  private _lastName: string;
+  private _phoneNumber: string;
+  private _profession: string; -->
+
+<ion-content *ngIf="regType === 1">
+  <ion-list class="ion-no-margin ion-padding flexcol">
+
+    <ion-item>
+      <ion-label position="stacked">Email <ion-text color="danger">*</ion-text>
+      </ion-label>
+      <ion-input required type="email" [(ngModel)]="customerRegistrationDetails.username"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">{{ 'login.password' | translate }} <ion-text color="danger">*</ion-text>
+      </ion-label>
+      <ion-input required type="password" [(ngModel)]="customerRegistrationDetails.password"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">{{ 'registration.last-name' | translate }} <ion-text color="danger">*</ion-text>
+      </ion-label>
+      <ion-input required type="text" [(ngModel)]="customerRegistrationDetails.lastName"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">{{ 'registration.first-name' | translate }} <ion-text color="danger">*</ion-text>
+      </ion-label>
+      <ion-input required type="text" [(ngModel)]="customerRegistrationDetails.firstName"></ion-input>
+    </ion-item>
+
+
+    <ion-item>
+      <ion-label position="stacked">{{ 'registration.phone-number' | translate }} <ion-text color="danger">*</ion-text>
+      </ion-label>
+      <ion-input required type="text" [(ngModel)]="customerRegistrationDetails.phoneNumber"></ion-input>
+    </ion-item>
+
+    <ion-list>
+      <ion-item>
+        <ion-label position="stacked">{{ 'registration.profession' | translate }} <ion-text color="danger">*</ion-text>
+        </ion-label>
+        <ion-select [(ngModel)]="customerRegistrationDetails.profession">
+          <ion-select-option *ngFor="let profession of professions">
+            <p>{{ profession | translate }}</p>
+          </ion-select-option>
+
+        </ion-select>
+      </ion-item>
+    </ion-list>
+
+
+
+    <div id="message">
+      <ion-text color="danger">{{ message | translate }}</ion-text>
+    </div>
+
+    <div id="login-registration-div" class="ion-padding">
+      <ion-button id="login-button" expand="block" type="submit" class="ion-no-margin" (click)="onRegistrationClick()">
+        {{ 'registration.registration-text' | translate }}
+      </ion-button>
+    </div>
+
+    <button (click)="handleRegistrationTypeChange()">Back</button>
+
+  </ion-list>
+</ion-content>
