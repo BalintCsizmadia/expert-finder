@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { isUndefined } from 'util';
 import { LoginDetails } from '../models/login-details';
 import { User } from '../models/user';
+import { Customer } from '../models/customer';
 
 
 @Injectable({
@@ -14,7 +15,7 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
 
-  getAuth(loginDetails?: LoginDetails): Observable<User> {
+  getAuth(loginDetails?: LoginDetails): Observable<User | Customer> {
     let httpOptions = {};
     if (!isUndefined(loginDetails)) {
       const headers = new HttpHeaders();
@@ -23,8 +24,20 @@ export class AuthService {
         headers
       };
     }
-    return this.http.get<User>('/api/auth', httpOptions);
+    return this.http.get<User | Customer>('/api/auth', httpOptions);
   }
+
+  // getAuthCustomer(loginDetails?: LoginDetails): Observable<Customer> {
+  //   let httpOptions = {};
+  //   if (!isUndefined(loginDetails)) {
+  //     const headers = new HttpHeaders();
+  //     headers.append('Authorization', 'Basic ' + window.btoa(loginDetails.username + ':' + loginDetails.password));
+  //     httpOptions = {
+  //       headers
+  //     };
+  //   }
+  //   return this.http.get<Customer>('/api/auth/customer', httpOptions);
+  // }
 
   deleteAuth() {
     this.http.delete<void>('/api/auth');

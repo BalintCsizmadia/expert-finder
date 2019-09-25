@@ -55,7 +55,11 @@ export class LoginPage implements OnInit {
     //  });
     // TODO if success
     this.navCtrl.navigateForward('/page/tabs/tab1');
+  }
 
+  // TODO TEMP
+  enterWithoutLogin() {
+    this.navCtrl.navigateForward('/page/tabs/tab2');
   }
 
 }

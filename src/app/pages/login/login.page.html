@@ -26,10 +26,19 @@
     </div>
 
     <div id="login-registration-div" class="ion-padding">
-      <ion-button id="login-button" expand="block" type="submit" class="ion-no-margin" (click)="onLoginClick()">
+      <ion-button id="login-button" expand="block" type="submit" (click)="onLoginClick()">
         {{ 'login.login-text' | translate }}
       </ion-button>
-      <ion-text>{{ 'login.registration' | translate }}</ion-text>
+
+        <ion-button expand="block" routerLink="/registration" routerDirection="root">{{ 'login.registration' | translate }}
+        </ion-button>
+      <!-- TODO TEMP -->
+      <!-- ---------------- -->
+      <ion-button id="login-button-without-registration" expand="block" type="submit" class="ion-no-margin" color="tertiary"
+        (click)="enterWithoutLogin()">
+        Continue as a USER
+      </ion-button>
+      <!-- ---------------- -->
     </div>
   </ion-list>
   <!-- TODO this is just a TEST -->
