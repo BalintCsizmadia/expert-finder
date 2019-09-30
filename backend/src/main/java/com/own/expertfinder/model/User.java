@@ -1,5 +1,7 @@
 package com.own.expertfinder.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -12,7 +14,9 @@ import java.util.Date;
 public class User extends AbstractModel implements Serializable {
 
     private String username;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Date registrationDate;
 
     public User() {
