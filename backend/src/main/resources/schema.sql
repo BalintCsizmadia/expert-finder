@@ -18,6 +18,8 @@ CREATE TABLE customers (
   profession TEXT,
   is_active BOOLEAN,
   position JSON,
+  -- default_position JSON ?
   status INTEGER,
-  available_from INTEGER
+  available_from INTEGER,
+  registration_date DATE
 );
