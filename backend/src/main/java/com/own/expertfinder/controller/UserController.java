@@ -1,5 +1,6 @@
 package com.own.expertfinder.controller;
 
+import com.own.expertfinder.exception.UserAlreadyExistsException;
 import com.own.expertfinder.model.User;
 import com.own.expertfinder.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,31 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @RequestMapping(path = "/users",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public List<User> getUserById() {
+        return userService.getAll();
+    }
+
     @RequestMapping(path = "/user/{id}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public User loginUser(@PathVariable("id") Integer id) {
+    public User getUserById(@PathVariable("id") Integer id) {
         return userService.getOne(id);
+    }
+
+    @RequestMapping(path = "/user/register",
+        method = RequestMethod.POST
+            )
+    public User add(@RequestBody Map<String, String> req) throws UserAlreadyExistsException {
+        User user = userService.createUserDataFromRequest(req);
+        try {
+            return userService.add(user);
+        } catch (UserAlreadyExistsException e) {
+            e.printStackTrace();
+            throw new UserAlreadyExistsException();
+        }
     }
 
     // Methods for users with COMPANY role

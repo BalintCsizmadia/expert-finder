@@ -1,5 +1,6 @@
 package com.own.expertfinder.service;
 
+import com.own.expertfinder.exception.UserAlreadyExistsException;
 import com.own.expertfinder.model.User;
 import com.own.expertfinder.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -54,12 +53,37 @@ public class UserService {
     }
      */
 
+    public List<User> getAll() { return userRepository.findAll(); }
+
     public User getOne(Integer id) {
         return userRepository.getOne(id);
     }
 
     public User getUserByName(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public User add(User user) throws UserAlreadyExistsException {
+        if (!isUsernameExists(user.getUsername())) {
+            return userRepository.save(user);
+        } else {
+            throw new UserAlreadyExistsException("Repeated registration attempt. User already exists.");
+        }
+    }
+
+    private boolean isUsernameExists(String username) {
+        User user = getUserByName(username);
+        return user != null;
+    }
+
+    public User createUserDataFromRequest(Map<String, String> req) {
+        User user = new User();
+        String username = req.get("username");
+        String password = req.get("password");
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setRegistrationDate(new Date());
+        return user;
     }
 /*
     @Transactional
