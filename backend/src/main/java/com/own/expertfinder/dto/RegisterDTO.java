@@ -1,0 +1,51 @@
+package com.own.expertfinder.dto;
+
+
+public class RegisterDTO {
+    private String username; // email
+    private String password;
+    private int role;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
+    private String profession;
+   // private Boolean isActive;
+    // @Convert(converter = HashMapConverter.class)
+    // private Map<String, Object> position;
+    private String position;
+
+    public RegisterDTO() {
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getProfession() {
+        return profession;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+}
