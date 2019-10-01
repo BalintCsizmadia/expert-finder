@@ -1,11 +1,13 @@
 package com.own.expertfinder.controller;
 
-import com.own.expertfinder.exception.UserAlreadyExistsException;
 import com.own.expertfinder.model.Customer;
 import com.own.expertfinder.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -22,21 +24,11 @@ public class CustomerController {
         return customerService.getAll();
     }
 
-    @RequestMapping(path = "/customer/{id}",
+    @RequestMapping(path = "/customers/{id}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public Customer getUserById(@PathVariable("id") Integer id) {
-        return customerService.getOne(id);
+        return customerService.getOneByUserId(id);
     }
 
-    @RequestMapping(path = "/customer/register",
-            method = RequestMethod.POST
-    )
-    public int add(@RequestBody Customer customer) throws UserAlreadyExistsException {
-        try {
-            return customerService.add(customer);
-        } catch (UserAlreadyExistsException e) {
-            e.printStackTrace();
-            throw new UserAlreadyExistsException();
-        }
-    }}
+}
