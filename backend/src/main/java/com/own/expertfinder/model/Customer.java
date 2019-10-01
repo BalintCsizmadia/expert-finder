@@ -2,11 +2,10 @@ package com.own.expertfinder.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.own.expertfinder.interfaces.GeneralUserInterface;
 import com.own.expertfinder.util.HashMapConverter;
 
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
@@ -14,10 +13,11 @@ import java.util.Map;
 @Entity
 @Table(name = "customers", schema = "public")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Customer extends AbstractModel implements Serializable {
-    private String username;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String password;
+public class Customer extends AbstractModel implements Serializable, GeneralUserInterface {
+    private String email;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User user;
     private String firstName;
     private String lastName;
     private String phoneNumber;
@@ -33,20 +33,20 @@ public class Customer extends AbstractModel implements Serializable {
     private Date registrationDate;
 
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public User getUser() {
+        return user;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getFirstName() {
