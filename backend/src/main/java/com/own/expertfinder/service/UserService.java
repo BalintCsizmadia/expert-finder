@@ -1,32 +1,38 @@
 package com.own.expertfinder.service;
 
+import com.own.expertfinder.dto.RegisterDTO;
 import com.own.expertfinder.exception.UserAlreadyExistsException;
+import com.own.expertfinder.model.Customer;
 import com.own.expertfinder.model.User;
+import com.own.expertfinder.model.Visitor;
 import com.own.expertfinder.repository.UserRepository;
+import com.own.expertfinder.repository.VisitorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public class UserService {
 
+    // HTTP status code
+    private final int RESOURCE_CREATED = 201;
+
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private VisitorRepository visitorRepository;
+
+    // TODO try to use repository
+    @Autowired
+    private CustomerService customerService;
 
     @Autowired
     private UserDetailsManager userDetailsManager;
@@ -53,7 +59,9 @@ public class UserService {
     }
      */
 
-    public List<User> getAll() { return userRepository.findAll(); }
+    public List<User> getAll() {
+        return userRepository.findAll();
+    }
 
     public User getOne(Integer id) {
         return userRepository.getOne(id);
@@ -63,28 +71,46 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public User add(User user) throws UserAlreadyExistsException {
-        if (!isUsernameExists(user.getUsername())) {
-            return userRepository.save(user);
+    @Transactional
+    public int add(RegisterDTO registrationData) throws UserAlreadyExistsException {
+        String role = (registrationData.getRole()) == 0 ? "VISITOR" : "CUSTOMER";
+        if (!userDetailsManager.userExists(registrationData.getUsername())) {
+            userDetailsManager.createUser(new org.springframework.security.core.userdetails.User(
+                    registrationData.getUsername(),
+                    passwordEncoder.encode(registrationData.getPassword()),
+                    AuthorityUtils.createAuthorityList("ROLE_" + role))
+            );
+            // TODO some pattern here
+            User user = getUserByName(registrationData.getUsername());
+            if (registrationData.getRole() == Role.VISITOR.getRole()) {
+                // Register a VISITOR
+                System.out.println("Add visitor to DB");
+                Visitor visitor = new Visitor();
+                visitor.setUser(user);
+                visitor.setEmail(registrationData.getUsername());
+                visitor.setRegistrationDate(new Date());
+                visitorRepository.save(visitor);
+            } else if (registrationData.getRole() == Role.CUSTOMER.getRole()) {
+                // Register a CUSTOMER
+                System.out.println("Add customer to DB");
+                Customer customer = new Customer();
+                customer.setUser(user);
+                customer.setEmail(registrationData.getUsername());
+                customer.setFirstName(registrationData.getFirstName());
+                customer.setLastName(registrationData.getLastName());
+                customer.setPhoneNumber(registrationData.getPhoneNumber());
+                customer.setProfession(registrationData.getProfession());
+                customer.setPosition(registrationData.getPosition());
+                customer.setRegistrationDate(new Date());
+                customerService.add(customer);
+            }
+            return RESOURCE_CREATED;
+            // user.setRegistrationDate(new Date());
         } else {
             throw new UserAlreadyExistsException("Repeated registration attempt. User already exists.");
         }
     }
 
-    private boolean isUsernameExists(String username) {
-        User user = getUserByName(username);
-        return user != null;
-    }
-
-    public User createUserDataFromRequest(Map<String, String> req) {
-        User user = new User();
-        String username = req.get("username");
-        String password = req.get("password");
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setRegistrationDate(new Date());
-        return user;
-    }
 /*
     @Transactional
     public User add(String username, String password, String role)
@@ -258,4 +284,19 @@ public class UserService {
     }
 
  */
+
+    private enum Role {
+        VISITOR(0),
+        CUSTOMER(1);
+
+        private final int value;
+
+        Role(int value) {
+            this.value = value;
+        }
+
+        public int getRole() {
+            return this.value;
+        }
+    }
 }
