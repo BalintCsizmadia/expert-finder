@@ -27,7 +27,11 @@ public class Customer extends AbstractModel implements Serializable, GeneralUser
     // @Convert(converter = HashMapConverter.class)
     // private Map<String, Object> position;
     private String position;
-    private Status status;
+    /**
+     * - 0 -> Available
+     * - 1 -> Not available
+     */
+    private Integer status;
     // private Integer availableFrom; // TODO type?
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Date registrationDate;
@@ -97,11 +101,11 @@ public class Customer extends AbstractModel implements Serializable, GeneralUser
         this.position = position;
     }
 
-    public Status getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -123,8 +127,4 @@ public class Customer extends AbstractModel implements Serializable, GeneralUser
         this.registrationDate = registrationDate;
     }
 
-    private enum Status {
-        AVAILABLE,
-        NOT_AVAILABLE
-    }
 }

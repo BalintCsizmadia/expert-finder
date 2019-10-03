@@ -10,6 +10,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     List<Customer> findAll();
 
+    @Override
+    Customer getOne(Integer integer);
+
     Customer findByUserId(Integer id);
 
 }

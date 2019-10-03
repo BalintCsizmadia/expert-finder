@@ -4,12 +4,10 @@ import com.own.expertfinder.model.Customer;
 import com.own.expertfinder.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class CustomerController {
@@ -29,6 +27,14 @@ public class CustomerController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public Customer getUserById(@PathVariable("id") Integer id) {
         return customerService.getOneByUserId(id);
+    }
+
+    @RequestMapping(path = "/customers/{id}",
+            method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public void updateCustomerStatus(@PathVariable("id") Integer id, @RequestBody Map<String, Integer> req) {
+        Integer status = req.get("status");
+        customerService.updateStatusById(id, status);
     }
 
 }

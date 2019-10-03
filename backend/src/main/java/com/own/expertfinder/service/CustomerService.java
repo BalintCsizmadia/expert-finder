@@ -46,4 +46,23 @@ public class CustomerService {
 
     }
 
+    public void updateStatusById(Integer customerId, Integer status) {
+        Customer customer = customerRepository.getOne(customerId);
+        customer.setStatus(status);
+        jdbcTemplate.update(
+                "UPDATE customers SET status = ? WHERE id = ?",
+                customer.getStatus(),
+                customer.getId()
+        );
+    }
+
+    // TODO solve it
+    /*
+    public void updateStatusById(Integer customerId, Integer status) {
+        Customer customer = customerRepository.getOne(customerId);
+        customer.setStatus(status);
+        customerRepository.save(customer);
+    }
+     */
+
 }
