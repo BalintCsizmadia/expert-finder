@@ -31,7 +31,7 @@ CREATE TABLE customers (
   position JSON,
   -- default_position JSON ?
   status INTEGER,
-  available_from INTEGER,
+  available_from TIMESTAMP,
   registration_date DATE,
   FOREIGN KEY(user_id) REFERENCES users(id)
 );
