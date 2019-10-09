@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -43,26 +44,51 @@ public class CustomerService {
                 customer.getProfession(),
                 customer.getPosition()
         );
-
     }
 
-    public void updateStatusById(Integer customerId, Integer status) {
+    // TODO implement
+    public int updatePosition(Integer customerId) {
+        Customer customer = customerRepository.getOne(customerId);
+        return 0;
+    }
+
+
+    public int updateStatusById(Integer customerId, Integer status) {
+        return customerRepository.updateStatusById(customerId, status);
+        /*
         Customer customer = customerRepository.getOne(customerId);
         customer.setStatus(status);
-        jdbcTemplate.update(
+        return jdbcTemplate.update(
                 "UPDATE customers SET status = ? WHERE id = ?",
                 customer.getStatus(),
                 customer.getId()
         );
+
+         */
     }
 
-    // TODO solve it
-    /*
-    public void updateStatusById(Integer customerId, Integer status) {
+    public int updateAvailableDateById(Integer customerId, Date date) {
+        return customerRepository.updateAvailableDateById(customerId, date);
+        /*
         Customer customer = customerRepository.getOne(customerId);
-        customer.setStatus(status);
-        customerRepository.save(customer);
+        customer.setAvailableFrom(date);
+        return jdbcTemplate.update(
+                "UPDATE customers SET available_from = ? WHERE id = ?",
+                customer.getAvailableFrom(),
+                customer.getId()
+        );
+         */
     }
-     */
+
+    // TODO refactor
+    public int deleteAvailableDateById(Integer customerId) {
+        Customer customer = customerRepository.getOne(customerId);
+        customer.setAvailableFrom(null);
+        return jdbcTemplate.update(
+                "UPDATE customers SET available_from = NULL WHERE id = ?",
+                customer.getId()
+        );
+    }
+
 
 }

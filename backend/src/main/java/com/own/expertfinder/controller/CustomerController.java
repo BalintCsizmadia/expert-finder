@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -32,9 +34,34 @@ public class CustomerController {
     @RequestMapping(path = "/customers/{id}",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public void updateCustomerStatus(@PathVariable("id") Integer id, @RequestBody Map<String, Integer> req) {
+    public int updateCustomerStatus(@PathVariable("id") Integer id, @RequestBody Map<String, Integer> req) {
         Integer status = req.get("status");
-        customerService.updateStatusById(id, status);
+        return customerService.updateStatusById(id, status);
     }
+
+    @RequestMapping(path = "/customers/{id}/date",
+            method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public int updateCustomerAvailableDate(@PathVariable("id") Integer id, @RequestBody Map<String, String> req) {
+        String dateString = req.get("availableFrom");
+        Calendar parsedDate = javax.xml.bind.DatatypeConverter.parseDate(dateString);
+        Date date = parsedDate.getTime();
+        return customerService.updateAvailableDateById(id, date);
+    }
+
+    @RequestMapping(path = "/customers/{id}/date-empty",
+            method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public int deleteCustomerAvailableDate(@PathVariable("id") Integer id) {
+        return customerService.deleteAvailableDateById(id);
+    }
+
+    @RequestMapping(path = "/customers/{id}/",
+            method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public int updatePosition(@PathVariable("id") Integer id) {
+        return customerService.updatePosition(id);
+    }
+
 
 }
