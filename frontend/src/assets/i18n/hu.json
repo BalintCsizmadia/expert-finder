@@ -11,9 +11,11 @@
         "missing-email": "Kérjük adjon meg egy email címet",
         "missing-password": "Kérjük adjon meg egy jelszót",
         "short-password": "Minimum 5 karakter",
+        "already-in-use": "Ez az email cím már használatban van. Kérjük válasszon másikat",
         "missing-first-name": "Kérjük adja meg a keresztnevét",
         "missing-last-name": "Kérjük adja meg a vezetéknevét",
         "missing-phone-number": "Kérjük adja meg a telefonszámát",
+        "invalid-phone-number": "A telefonszám csak számokat tartalmazhat",
         "missing-profession": "Kérjük válasszon az alábbi menüből",
         "professions": ["A HUN", "B HUN", "C HUN"]
     },
