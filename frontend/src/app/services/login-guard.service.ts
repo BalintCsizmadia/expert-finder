@@ -3,8 +3,7 @@ import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { User } from '../models/user';
-import { Customer } from '../models/customer';
+import { LoggedInUser } from '../models/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +14,7 @@ export class LoginGuardService implements CanActivate {
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
     return this.authService.getAuth().pipe(
-      map((user: User | Customer) => true),
+      map((user: LoggedInUser) => true),
       catchError((error: Error) => {
         console.error(error.message);
         this.router.navigate(['']);
