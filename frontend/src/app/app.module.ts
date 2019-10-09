@@ -11,6 +11,7 @@ import { AppComponent } from './app.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { UserService } from './services/user.service';
 import { httpInterceptorProviders } from './http-interceptors';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -28,7 +29,10 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    UserService, httpInterceptorProviders, HttpClientModule
+    httpInterceptorProviders,
+    HttpClientModule,
+    Geolocation,
+    UserService
   ],
   bootstrap: [AppComponent]
 })
