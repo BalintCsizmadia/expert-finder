@@ -3,7 +3,13 @@ import { LoginDetails } from 'src/app/models/login-details';
 import { AuthService } from 'src/app/services/auth.service';
 import { NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { UserService } from 'src/app/services/user.service';
 
+
+enum Role {
+  VISITOR = 'ROLE_VISITOR',
+  CUSTOMER = 'ROLE_CUSTOMER'
+}
 
 @Component({
   selector: 'app-login',
@@ -17,8 +23,9 @@ export class LoginPage implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private userService: UserService,
     private navCtrl: NavController,
-    private translateService: TranslateService) { }
+    public translateService: TranslateService) { }
 
   ngOnInit() {
   }
@@ -37,7 +44,7 @@ export class LoginPage implements OnInit {
     }
   }
 
-  displayMessage(message: string) {
+  private displayMessage(message: string) {
     try {
       this.translateService.get(message).subscribe(
         (translatedMessage: string) => {
@@ -48,18 +55,20 @@ export class LoginPage implements OnInit {
     }
   }
 
-  loginSuccess() {
-    // TODO backend implementation missing
-    //  this.authService.getAuth(this.loginDetails).subscribe(user => {
-    //    console.log(user);
-    //  });
-    // TODO if success
-    this.navCtrl.navigateForward('/page/tabs/tab1');
+  private loginSuccess() {
+    // TODO REFACTOR
+    this.authService.getAuth(this.loginDetails).subscribe(user => {
+      if (user.authorities && user.authorities[0] === Role.VISITOR) {
+        this.navCtrl.navigateForward('/visitor/tabs/tab2');
+      } else if (!user.authorities && user.user) {
+        this.navCtrl.navigateForward('/customer/tabs/tab2');
+      }
+    });
   }
 
   // TODO TEMP
   enterWithoutLogin() {
-    this.navCtrl.navigateForward('/page/tabs/tab2');
+    this.navCtrl.navigateForward('/visitor/tabs/tab2');
   }
 
 }
