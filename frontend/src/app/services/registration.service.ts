@@ -11,12 +11,8 @@ export class RegistrationService {
 
   constructor(private userService: UserService) { }
 
-  userRegister(registerDetails: RegistrationDetails): Observable<void> {
-    return this.userService.userRegister(registerDetails);
-  }
-
-  customerRegister(registerDetails: CustomerRegistrationDetails): Observable<void> {
-    return this.userService.customerRegister(registerDetails);
+  register(registerDetails: RegistrationDetails | CustomerRegistrationDetails): Observable<void> {
+    return this.userService.register(registerDetails);
   }
 
 }
