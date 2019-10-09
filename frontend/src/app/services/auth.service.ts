@@ -5,6 +5,8 @@ import { isUndefined } from 'util';
 import { LoginDetails } from '../models/login-details';
 import { User } from '../models/user';
 import { Customer } from '../models/customer';
+import { LoggedInUser } from '../models/interfaces';
+import { URL_PREFIX } from 'src/environments/environment';
 
 
 @Injectable({
@@ -15,31 +17,14 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
 
-  getAuth(loginDetails?: LoginDetails): Observable<User | Customer> {
-    let httpOptions = {};
-    if (!isUndefined(loginDetails)) {
-      const headers = new HttpHeaders();
-      headers.append('Authorization', 'Basic ' + window.btoa(loginDetails.username + ':' + loginDetails.password));
-      httpOptions = {
-        headers
-      };
-    }
-    return this.http.get<User | Customer>('/api/auth', httpOptions);
+  getAuth(loginDetails?: LoginDetails): Observable<LoggedInUser> {
+      const headers = new HttpHeaders(loginDetails ? {
+        Authorization: 'Basic ' + btoa(loginDetails.username + ':' + loginDetails.password)
+      } : {});
+      return this.http.get<LoggedInUser>(`${URL_PREFIX}/auth`, { headers });
   }
 
-  // getAuthCustomer(loginDetails?: LoginDetails): Observable<Customer> {
-  //   let httpOptions = {};
-  //   if (!isUndefined(loginDetails)) {
-  //     const headers = new HttpHeaders();
-  //     headers.append('Authorization', 'Basic ' + window.btoa(loginDetails.username + ':' + loginDetails.password));
-  //     httpOptions = {
-  //       headers
-  //     };
-  //   }
-  //   return this.http.get<Customer>('/api/auth/customer', httpOptions);
-  // }
-
   deleteAuth() {
-    this.http.delete<void>('/api/auth');
+    this.http.delete<void>(`${URL_PREFIX}/auth`);
   }
 }
