@@ -32,7 +32,9 @@ public class Customer extends AbstractModel implements Serializable, GeneralUser
      * - 1 -> Not available
      */
     private Integer status;
-    // private Integer availableFrom; // TODO type?
+    @Basic
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date availableFrom;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Date registrationDate;
 
@@ -109,15 +111,15 @@ public class Customer extends AbstractModel implements Serializable, GeneralUser
         this.status = status;
     }
 
-   /*
-    public Integer getAvailableFrom() {
+
+    public Date getAvailableFrom() {
         return availableFrom;
     }
 
-    public void setAvailableFrom(Integer availableFrom) {
+    public void setAvailableFrom(Date availableFrom) {
         this.availableFrom = availableFrom;
     }
-     */
+
 
     public Date getRegistrationDate() {
         return registrationDate;
