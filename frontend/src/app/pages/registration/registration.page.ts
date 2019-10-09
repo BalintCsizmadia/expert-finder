@@ -4,9 +4,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { RegistrationDetails } from 'src/app/models/login-details';
 import { RegistrationService } from 'src/app/services/registration.service';
 import { CustomerRegistrationDetails } from 'src/app/models/customer-registration-details';
+import { Position } from 'src/app/models/interfaces';
 
 enum RegistrationType {
-  USER,
+  VISITOR,
   CUSTOMER
 }
 
@@ -19,9 +20,11 @@ export class RegistrationPage implements OnInit {
 
   registrationDetails = new RegistrationDetails();
   customerRegistrationDetails = new CustomerRegistrationDetails();
-  regType: RegistrationType = RegistrationType.USER;
+  regType: RegistrationType = RegistrationType.VISITOR;
   professions = [];
   message: string;
+  RESOURCE_CREATED = 201;
+  UNAUTHORIZED = 401;
 
   constructor(
     private registerService: RegistrationService,
@@ -31,9 +34,11 @@ export class RegistrationPage implements OnInit {
 
   ngOnInit() {
     this.addProfessionsToArray();
+    // get users actual position
+    this.getAndSetLocation(this.customerRegistrationDetails);
   }
 
-  addProfessionsToArray() {
+  private addProfessionsToArray() {
     this.translateService.get('registration.professions').subscribe(
       (professionArray: string[]) => {
         professionArray.map((profession: string) => {
@@ -43,36 +48,44 @@ export class RegistrationPage implements OnInit {
     );
   }
 
+  private getAndSetLocation(customerRegDetails: CustomerRegistrationDetails) {
+    if (navigator.geolocation) {
+      return navigator.geolocation.getCurrentPosition((position) => {
+        const userPosition: Position = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: new Date()
+        };
+        customerRegDetails.position = userPosition;
+      });
+    } else {
+      console.error('Geolocation is not supported');
+    }
+  }
+
   onRegistrationClick() {
-    if (this.regType === RegistrationType.USER) {
-      if (this.isValidUserRegistration(this.registrationDetails.username, this.registrationDetails.password)) {
-        this.onSuccessRegistration(this.regType);
+    if (this.regType === RegistrationType.VISITOR) {
+      if (this.isValidVisitorRegistrationDeatails(this.registrationDetails)) {
+        this.handleRegistration(this.regType);
       }
     } else if (this.regType === RegistrationType.CUSTOMER) {
-      if (this.isValidCustomerRegistration(
-        this.customerRegistrationDetails.username,
-        this.customerRegistrationDetails.password,
-        this.customerRegistrationDetails.firstName,
-        this.customerRegistrationDetails.lastName,
-        this.customerRegistrationDetails.phoneNumber,
-        this.customerRegistrationDetails.profession
-      )) {
-        this.onSuccessRegistration(this.regType);
+      if (this.isValidCustomerRegistrationDetails(this.customerRegistrationDetails)) {
+        this.handleRegistration(this.regType);
       }
     }
   }
 
-  isValidUserRegistration(username: string, password: string) {
+  private isValidVisitorRegistrationDeatails(details: RegistrationDetails) {
     this.displayMessage('clear');
-    if (!username && !password) {
+    if (!details.username && !details.password) {
       this.displayMessage('registration.all-empty');
-    } else if (!username) {
+    } else if (!details.username) {
       this.displayMessage('registration.missing-email');
       return;
-    } else if (!password) {
+    } else if (!details.password) {
       this.displayMessage('registration.missing-password');
       return;
-    } else if (!this.isValidPassword(password)) {
+    } else if (!this.isValidPassword(details.password)) {
       this.displayMessage('registration.short-password');
       this.registrationDetails.password = '';
       return;
@@ -81,45 +94,41 @@ export class RegistrationPage implements OnInit {
     }
   }
 
-  isValidCustomerRegistration(
-    username: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-    phoneNumber: string,
-    profession: string
-  ) {
+  private isValidCustomerRegistrationDetails(details: CustomerRegistrationDetails) {
     this.displayMessage('clear');
-    if (!username && !password) {
+    if (!details.username && !details.password) {
       this.displayMessage('registration.all-empty');
-    } else if (!username) {
+    } else if (!details.username) {
       this.displayMessage('registration.missing-email');
       return;
-    } else if (!password) {
+    } else if (!details.password) {
       this.displayMessage('registration.missing-password');
       return;
-    } else if (!this.isValidPassword(password)) {
+    } else if (!this.isValidPassword(details.password)) {
       this.displayMessage('registration.short-password');
       this.customerRegistrationDetails.password = '';
       return;
-    } else if (!firstName) {
+    } else if (!details.firstName) {
       this.displayMessage('registration.missing-first-name');
       return;
-    } else if (!lastName) {
+    } else if (!details.lastName) {
       this.displayMessage('registration.missing-last-name');
       return;
-    } else if (!phoneNumber) {
+    } else if (!details.phoneNumber) {
       this.displayMessage('registration.missing-phone-number');
       return;
-    } else if (!profession) {
+    } else if (!details.profession) {
       this.displayMessage('registration.missing-profession');
+      return;
+    } else if (!this.isValidPhoneNumber(details.phoneNumber)) {
+      this.displayMessage('registration.invalid-phone-number');
       return;
     } else {
       return true;
     }
   }
 
-  displayMessage(message: string) {
+  private displayMessage(message: string) {
     try {
       this.translateService.get(message).subscribe(
         (translatedMessage: string) => {
@@ -132,38 +141,58 @@ export class RegistrationPage implements OnInit {
 
   // basic check
   private isValidPassword(password: string) {
-    // TODO Check password duplication on backend (is there same password in the db already?)
-    if (password.length >= 5) {
-      return true;
-    }
-    return false;
+    return password.length >= 5 ? true : false;
   }
 
-  onSuccessRegistration(regType: RegistrationType) {
-    switch (regType) {
-      case RegistrationType.USER:
-        this.registerService.userRegister(this.registrationDetails).subscribe((res: any) => {
-          console.log('ez');
-          console.log(res);
-          this.navCtrl.navigateBack('/');
-        });
-        break;
-      case RegistrationType.CUSTOMER:
-        this.registerService.customerRegister(this.customerRegistrationDetails).subscribe(() => {
-          this.navCtrl.navigateBack('/');
-        });
-        break;
-      default:
-        console.error('Something went wrong during registration.');
-        this.navCtrl.navigateBack('/');
-        break;
+  private isValidPhoneNumber(phoneNumber: string): boolean {
+    if (!this.isNumeric(phoneNumber)) {
+      return;
     }
+    if (phoneNumber.length < 8 && phoneNumber.length > 12) {
+      return;
+    }
+    return true;
+  }
+
+  private isNumeric(num: any) {
+    return !isNaN(num);
+  }
+
+  private handleRegistration(regType: RegistrationType) {
+    let details: RegistrationDetails | CustomerRegistrationDetails;
+    if (regType === RegistrationType.VISITOR) {
+      details = this.registrationDetails;
+      details.role = regType;
+    } else if (regType === RegistrationType.CUSTOMER) {
+      details = this.customerRegistrationDetails;
+      details.role = regType;
+    }
+    this.registerService.register(details).subscribe((status: any) => {
+      if (status === this.RESOURCE_CREATED) {
+        // success
+        this.navCtrl.navigateBack('/');
+      } else {
+        console.error('Something went wrong, response is ' + status);
+      }
+    }, (err) => {
+      if (err.error.status === this.UNAUTHORIZED) {
+        this.displayMessage(err.error.message);
+      } else {
+        console.error(err);
+      }
+    });
   }
 
   handleRegistrationTypeChange() {
-    this.regType === RegistrationType.USER
+    // before switching screen - remove error message if there was
+    this.displayMessage('clear');
+    this.regType === RegistrationType.VISITOR
       ? (this.regType = RegistrationType.CUSTOMER)
-      : (this.regType = RegistrationType.USER);
+      : (this.regType = RegistrationType.VISITOR);
+  }
+
+  isVisitor(regType: RegistrationType) {
+    return regType === RegistrationType.VISITOR ? true : false;
   }
 
 }

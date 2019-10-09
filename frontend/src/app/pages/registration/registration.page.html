@@ -5,8 +5,8 @@
     </ion-title>
   </ion-toolbar>
 </ion-header>
-
-<ion-content *ngIf="regType === 0">
+<!-- VISITOR -->
+<ion-content *ngIf="isVisitor(regType)">
   <!-- lines="fulL" -->
   <ion-list class="ion-no-margin ion-padding flexcol">
 
@@ -36,13 +36,9 @@
 
   </ion-list>
 </ion-content>
-<!-- 
-private _firstName: string;
-  private _lastName: string;
-  private _phoneNumber: string;
-  private _profession: string; -->
 
-<ion-content *ngIf="regType === 1">
+<!-- CUSTOMER -->
+<ion-content *ngIf="!isVisitor(regType)">
   <ion-list class="ion-no-margin ion-padding flexcol">
 
     <ion-item>
@@ -73,7 +69,7 @@ private _firstName: string;
     <ion-item>
       <ion-label position="stacked">{{ 'registration.phone-number' | translate }} <ion-text color="danger">*</ion-text>
       </ion-label>
-      <ion-input required type="text" [(ngModel)]="customerRegistrationDetails.phoneNumber"></ion-input>
+      <ion-input required type="tel" [(ngModel)]="customerRegistrationDetails.phoneNumber"></ion-input>
     </ion-item>
 
     <ion-list>
@@ -89,8 +85,6 @@ private _firstName: string;
       </ion-item>
     </ion-list>
 
-
-
     <div id="message">
       <ion-text color="danger">{{ message | translate }}</ion-text>
     </div>
@@ -101,6 +95,7 @@ private _firstName: string;
       </ion-button>
     </div>
 
+    <!-- TODO temp -->
     <button (click)="handleRegistrationTypeChange()">Back</button>
 
   </ion-list>
