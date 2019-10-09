@@ -1,0 +1,18 @@
+.welcome-card img {
+  max-height: 35vh;
+  overflow: hidden;
+}
+
+#map_expert {
+  width: 100%;
+  height: 100%;
+}
+
+#state-buttons-wrapper {
+  z-index: 1000;
+  position: absolute;
+  bottom: 0;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 5%;
+}

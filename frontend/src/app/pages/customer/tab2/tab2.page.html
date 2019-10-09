@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      {{ 'map.title' | translate }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<div id="map_expert"></div>
+<div id="state-buttons-wrapper">
+
+  <ion-button color="{{availableButtonColor}}" (click)="onStatusChange(customer.id, 0)">
+    {{ 'state.available' | translate }}</ion-button>
+  <ion-button color="{{notAvailableButtonColor}}" (click)="onStatusChange(customer.id, 1)">
+    {{ 'state.not-available' | translate }}</ion-button>
+</div>
+
+<ion-item hidden>
+  <ion-datetime id="date-selector" displayFormat="MMM D H:mm" value="{{selectedDate}}"
+    (ionChange)="onDateChange(customer.id, $event.target.value)"></ion-datetime>
+</ion-item>
