@@ -1,7 +1,8 @@
 export class User {
     // tslint:disable:variable-name
     private _id: number;
-    private _username: string; // from email
+    private _username: string; // email
+    private _authorities: string[];
 
     constructor() {
     }
@@ -10,12 +11,12 @@ export class User {
         return this._id;
     }
 
-    public set id(id: number) {
-        this._id = id;
-    }
-
     public get username(): string {
         return this._username;
+    }
+
+    public get authorities(): string[] {
+        return this._authorities;
     }
 
 }

@@ -10,9 +10,12 @@ export class Customer extends User {
   private _phoneNumber: string;
   private _profession: string;
   private _isActive: boolean;
-  private _position: Position;
+  // '_position' arrives from database as a 'string'
+  // then it will be a 'Position' object
+  private _position: Position | string;
   private _status: Status | null;
-  private _availableFrom?: Date; // ?
+  private _availableFrom: Date; // ?
+  private _user: User;
 
   constructor() {
     super();
@@ -58,11 +61,11 @@ export class Customer extends User {
     this._isActive = isActive;
   }
 
-  public get position(): Position {
+  public get position(): Position | string {
     return this._position;
   }
 
-  public set position(position: Position) {
+  public set position(position: Position | string) {
     this._position = position;
   }
 
@@ -81,5 +84,15 @@ export class Customer extends User {
   public set availableFrom(time: Date) {
     this._availableFrom = time;
   }
+
+  public get user(): User {
+    return this._user;
+  }
+
+  public set user(user: User) {
+    this._user = user;
+  }
+
+
 
 }
