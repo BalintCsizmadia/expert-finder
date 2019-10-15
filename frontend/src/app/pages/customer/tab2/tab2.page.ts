@@ -1,7 +1,6 @@
 import { Component, OnInit, AfterContentInit } from '@angular/core';
 import { Map, tileLayer, marker, icon, LatLngExpression, Marker, LocationEvent } from 'leaflet';
 import { UserService } from 'src/app/services/user.service';
-import { Customer } from 'src/app/models/customer';
 import { Position, LoggedInUser } from 'src/app/models/interfaces';
 import { AuthService } from 'src/app/services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -27,8 +26,9 @@ export class Tab2Page implements OnInit, AfterContentInit {
 
   // auth user
   customer: LoggedInUser;
+  // text after position marker clicked
+  markerText: string;
   // buttons
-  // TODO Kéne egy timer vagy valami, hogy ezek meddig jelezzék az állapotot? vagy mihez kössem?
   availableButtonColor = 'primary';
   notAvailableButtonColor = 'primary';
   // date when current customer will be available
@@ -38,7 +38,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
     private authService: AuthService,
     private userService: UserService,
     private translateService: TranslateService
-    ) { }
+  ) { }
 
   ngOnInit() {
     this.authService.getAuth().subscribe(loggedInUser => {
@@ -49,12 +49,10 @@ export class Tab2Page implements OnInit, AfterContentInit {
         this.handleCountDownTimer(this.customer.availableFrom);
       }
     });
-
-    setInterval(() => {
-      console.log(this.customer.position);
-  }, 10000);
-
-
+    // set text in marker after click
+    this.addCustomerMarkerText();
+    // update 'position' in the DB every time when it changes
+    this.updateLocation();
     // currently the map's starting postion points to Budapest, Hungary
     map = new Map('map_expert').setView(COORDINATES_OF_BUDAPEST, DEFAULT_ZOOM_LEVEL);
     tileLayer(MAP_TILE_LAYER, {
@@ -68,6 +66,34 @@ export class Tab2Page implements OnInit, AfterContentInit {
     map.locate({ setView: false, maxZoom: 16, timeout: 10000, watch: true, enableHighAccuracy: true });
     map.on('locationfound', this.onLocationFound);
     map.on('locationerror', this.onLocationError);
+  }
+
+  private addCustomerMarkerText() {
+    this.translateService.get('marker.hereyouare').subscribe(
+      (markerText: string) => {
+        this.markerText = markerText;
+      }
+    );
+  }
+
+  updateLocation = () => {
+    // TODO refactor / rethink
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition((position) => {
+        const userPosition: Position = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: new Date()
+        };
+        if (this.customer && userPosition) {
+          this.userService.updateCustomerPosition(this.customer.id, JSON.stringify(userPosition)).subscribe(() => {
+            console.log('position updated');
+          });
+        }
+      }, (err: PositionError) => {
+        console.error(err);
+      });
+    }
   }
 
   onLocationFound = (location: LocationEvent) => {
@@ -93,7 +119,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
     // L.circle(locationEvent.latlng, locationEvent.accuracy, { opacity: 0.4, fillOpacity: 0.1 }).addTo(map);
   }
 
-  onLocationClick(customerMarker: Marker, latitude: number, longitude: number) {
+  onLocationClick = (customerMarker: Marker, latitude: number, longitude: number) => {
     if (customerMarker) {
       customerMarker.off('click');
       // zoom
@@ -102,18 +128,20 @@ export class Tab2Page implements OnInit, AfterContentInit {
         map.setView([latitude, longitude], 17);
       });
       customerMarker
-        .bindPopup(`<b>${'name'}</b><br>Your position`)
+        .bindPopup(
+          `<b>${this.customer.firstName + ' ' + this.customer.lastName}</b>
+          <br>${this.markerText}`)
         .openPopup();
     }
   }
 
-  onLocationError(e: any) {
+  onLocationError = (e: any) => {
     alert(e.message);
     map.on('locationfound', this.onLocationFound);
   }
 
 
-  onStatusChange(customerId: number, status: number) {
+  onStatusChange = (customerId: number, status: number) => {
     // TODO kell ez ?
     // if (status === Status.AVAILABLE) {
     //   this.userService.deleteAvailableFromDateById(this.customer.id).subscribe(() => {
@@ -136,21 +164,21 @@ export class Tab2Page implements OnInit, AfterContentInit {
     selector.click();
   }
 
-  setButtonColor(status: number) {
-      console.log('status: ' + status);
-      switch (status) {
-        case 0:
-          this.availableButtonColor = 'success';
-          this.notAvailableButtonColor = 'primary';
-          break;
-        case 1:
-          this.availableButtonColor = 'primary';
-          this.notAvailableButtonColor = 'danger';
-          break;
-      }
+  setButtonColor = (status: number) => {
+    console.log('status: ' + status);
+    switch (status) {
+      case 0:
+        this.availableButtonColor = 'success';
+        this.notAvailableButtonColor = 'primary';
+        break;
+      case 1:
+        this.availableButtonColor = 'primary';
+        this.notAvailableButtonColor = 'danger';
+        break;
+    }
   }
 
-  onDateChange(customerId: number, dateStr: any) {
+  onDateChange = (customerId: number, dateStr: any) => {
     const date = new Date(dateStr);
     this.userService.updateCustomerAvailableDate(customerId, date).subscribe(res => {
       console.log('date updated. status: ' + date);
@@ -161,7 +189,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
   }
 
   // number in milliseconds
-  handleCountDownTimer(availableFromDate: number) {
+  handleCountDownTimer = (availableFromDate: number) => {
     // TODO ha korábban indult timer, az ketyeg tovább miután váltok. ezt kezelni KELL
     const cnt = setInterval(() => {
       // Get today's date and time
