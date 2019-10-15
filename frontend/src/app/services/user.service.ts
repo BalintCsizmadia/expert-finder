@@ -69,13 +69,22 @@ export class UserService {
     return this.http.put<number>(`${URL_PREFIX}/customers/${id}`, {status: statusInteger});
   }
 
-  // TODO: date?: Date -> handle everywhere
   updateCustomerAvailableDate(id: number, date: Date): Observable<number> {
     return this.http.put<number>(`${URL_PREFIX}/customers/${id}/date`, {availableFrom: date});
   }
 
+  // TODO need?
   deleteAvailableDateById(id: number): Observable<void> {
     return this.http.put<void>(`${URL_PREFIX}/customers/${id}/date-empty`, {});
+  }
+
+  updateCustomerPosition(id: number, currentPosition: string): Observable<number> {
+    return this.http.put<number>(`${URL_PREFIX}/customers/${id}/position`, {position: currentPosition});
+  }
+
+  // TODO here?
+  getProfessionsByLanguage(currentLanguage: string): Observable<any> {
+    return this.http.post<any>(`${URL_PREFIX}/customers/professions`, {language: currentLanguage });
   }
 
 }
