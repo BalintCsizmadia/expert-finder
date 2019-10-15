@@ -34,5 +34,8 @@
     "state": {
         "available": "Available",
         "not-available": "Not available"
+    },
+    "marker": {
+        "hereyouare": "Your position"
     }
 }

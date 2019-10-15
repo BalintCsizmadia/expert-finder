@@ -34,5 +34,8 @@
     "state": {
         "available": "Elérhető",
         "not-available": "Elfoglalt"
+    },
+    "marker": {
+        "hereyouare": "Itt állsz"
     }
 }
