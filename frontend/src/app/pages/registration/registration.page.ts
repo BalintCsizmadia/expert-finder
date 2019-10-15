@@ -5,6 +5,7 @@ import { RegistrationDetails } from 'src/app/models/login-details';
 import { RegistrationService } from 'src/app/services/registration.service';
 import { CustomerRegistrationDetails } from 'src/app/models/customer-registration-details';
 import { Position } from 'src/app/models/interfaces';
+import { UserService } from 'src/app/services/user.service';
 
 enum RegistrationType {
   VISITOR,
@@ -28,6 +29,7 @@ export class RegistrationPage implements OnInit {
 
   constructor(
     private registerService: RegistrationService,
+    private userService: UserService,
     private translateService: TranslateService,
     private navCtrl: NavController
   ) { }
@@ -46,6 +48,11 @@ export class RegistrationPage implements OnInit {
         });
       }
     );
+  }
+
+  // TODO use it later
+  private getCurrentLanguage(translateService: TranslateService) {
+    return translateService.currentLang ? translateService.currentLang : translateService.defaultLang;
   }
 
   private getAndSetLocation(customerRegDetails: CustomerRegistrationDetails) {
