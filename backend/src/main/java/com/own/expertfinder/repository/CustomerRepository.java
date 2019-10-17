@@ -1,4 +1,5 @@
 package com.own.expertfinder.repository;
+
 import com.own.expertfinder.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,11 +22,34 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Customer c SET c.status = ?2 WHERE c.id = ?1")
+    @Query(value = "INSERT INTO customers " +
+            "(user_id, email, first_name, last_name, phone_number, profession, position, registration_date) " +
+            "VALUES (?1, ?2, ?3, ?4, ?5, ?6, CAST(?7 AS json), NOW())",
+            nativeQuery = true)
+    int add(
+            Integer userId,
+            String email,
+            String firstName,
+            String lastName,
+            String phoneNumber,
+            String profession,
+            String position
+    );
+
+    // TODO available_from = NULL ? figure it out
+    @Modifying
+    @Transactional
+    @Query("UPDATE Customer c SET c.status = ?2, available_from = NULL WHERE c.id = ?1")
     int updateStatusById(Integer customerId, Integer status);
 
     @Modifying
     @Transactional
     @Query("UPDATE Customer c SET c.availableFrom = ?2 WHERE c.id = ?1")
     int updateAvailableDateById(Integer customerId, Date date);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE customers SET position = CAST(?2 AS json) WHERE id = ?1", nativeQuery = true)
+    int updatePositionById(Integer customerId, String position);
+
 }
