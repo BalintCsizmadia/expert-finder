@@ -60,31 +60,26 @@ export class UserService {
     return this.http.get<Customer[]>(`${URL_PREFIX}/customers`);
   }
 
-  getCustomerById(id: number): Observable<Customer> {
-    return this.http.get<Customer>(`${URL_PREFIX}/customers/${id}`);
+  getCustomerByUserId(userId: number): Observable<Customer> {
+    return this.http.get<Customer>(`${URL_PREFIX}/customers/${userId}`);
   }
 
   // update
   updateCustomerStatus(id: number, statusInteger: number): Observable<number> {
-    return this.http.put<number>(`${URL_PREFIX}/customers/${id}`, {status: statusInteger});
+    return this.http.put<number>(`${URL_PREFIX}/customers/${id}`, { status: statusInteger });
   }
 
   updateCustomerAvailableDate(id: number, date: Date): Observable<number> {
-    return this.http.put<number>(`${URL_PREFIX}/customers/${id}/date`, {availableFrom: date});
-  }
-
-  // TODO need?
-  deleteAvailableDateById(id: number): Observable<void> {
-    return this.http.put<void>(`${URL_PREFIX}/customers/${id}/date-empty`, {});
+    return this.http.put<number>(`${URL_PREFIX}/customers/${id}/date`, { availableFrom: date });
   }
 
   updateCustomerPosition(id: number, currentPosition: string): Observable<number> {
-    return this.http.put<number>(`${URL_PREFIX}/customers/${id}/position`, {position: currentPosition});
+    return this.http.put<number>(`${URL_PREFIX}/customers/${id}/position`, { position: currentPosition });
   }
 
   // TODO here?
   getProfessionsByLanguage(currentLanguage: string): Observable<any> {
-    return this.http.post<any>(`${URL_PREFIX}/customers/professions`, {language: currentLanguage });
+    return this.http.post<any>(`${URL_PREFIX}/customers/professions`, { language: currentLanguage });
   }
 
 }
