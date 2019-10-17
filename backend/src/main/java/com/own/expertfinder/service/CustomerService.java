@@ -29,9 +29,17 @@ public class CustomerService {
         return customerRepository.findByUserId(userId);
     }
 
-    public int add(Customer customer) {
-        // return customerRepository.save(customer);
-        // TODO Refactor / Change
+    int add(Customer customer) {
+        return customerRepository.add(
+                customer.getUser().getId(),
+                customer.getEmail(),
+                customer.getFirstName(),
+                customer.getLastName(),
+                customer.getPhoneNumber(),
+                customer.getProfession(),
+                customer.getPosition()
+        );
+        /*
         return jdbcTemplate.update(
                 "INSERT INTO customers " +
                         "(user_id ,email, first_name, last_name, phone_number, profession, position, registration_date) " +
@@ -44,14 +52,12 @@ public class CustomerService {
                 customer.getProfession(),
                 customer.getPosition()
         );
+         */
     }
 
-    // TODO implement
-    public int updatePosition(Integer customerId) {
-        Customer customer = customerRepository.getOne(customerId);
-        return 0;
+    public int updatePosition(Integer customerId, String position) {
+        return customerRepository.updatePositionById(customerId, position);
     }
-
 
     public int updateStatusById(Integer customerId, Integer status) {
         return customerRepository.updateStatusById(customerId, status);
@@ -63,7 +69,6 @@ public class CustomerService {
                 customer.getStatus(),
                 customer.getId()
         );
-
          */
     }
 
@@ -79,16 +84,5 @@ public class CustomerService {
         );
          */
     }
-
-    // TODO refactor
-    public int deleteAvailableDateById(Integer customerId) {
-        Customer customer = customerRepository.getOne(customerId);
-        customer.setAvailableFrom(null);
-        return jdbcTemplate.update(
-                "UPDATE customers SET available_from = NULL WHERE id = ?",
-                customer.getId()
-        );
-    }
-
 
 }

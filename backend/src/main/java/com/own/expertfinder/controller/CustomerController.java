@@ -49,18 +49,12 @@ public class CustomerController {
         return customerService.updateAvailableDateById(id, date);
     }
 
-    @RequestMapping(path = "/customers/{id}/date-empty",
+    @RequestMapping(path = "/customers/{id}/position",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public int deleteCustomerAvailableDate(@PathVariable("id") Integer id) {
-        return customerService.deleteAvailableDateById(id);
-    }
-
-    @RequestMapping(path = "/customers/{id}/",
-            method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public int updatePosition(@PathVariable("id") Integer id) {
-        return customerService.updatePosition(id);
+    public int updatePosition(@PathVariable("id") Integer id, @RequestBody Map<String, String> req) {
+        String position = req.get("position");
+        return customerService.updatePosition(id, position);
     }
 
 
