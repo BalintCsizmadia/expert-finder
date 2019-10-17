@@ -6,7 +6,13 @@
   </ion-toolbar>
 </ion-header>
 
-<div id="map_expert"></div>
+<div id="map_expert">
+    <div id="find-me-button-wrapper" class="leaflet-top leaflet-left">
+        <div id="find-me">
+          <ion-button id="find-me-button" color="light" (click)="relocate()">O</ion-button>
+        </div>
+    </div>
+</div>
 <div id="state-buttons-wrapper">
 
   <ion-button color="{{availableButtonColor}}" (click)="onStatusChange(customer.id, 0)">

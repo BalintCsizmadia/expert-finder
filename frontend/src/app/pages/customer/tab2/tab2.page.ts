@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterContentInit } from '@angular/core';
-import { Map, tileLayer, marker, icon, LatLngExpression, Marker, LocationEvent } from 'leaflet';
+import { Map, tileLayer, marker, icon, LatLngExpression, Marker, LocationEvent, LatLng } from 'leaflet';
 import { UserService } from 'src/app/services/user.service';
 import { Position, LoggedInUser } from 'src/app/models/interfaces';
 import { AuthService } from 'src/app/services/auth.service';
@@ -33,6 +33,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
   notAvailableButtonColor = 'primary';
   // date when current customer will be available
   selectedDate = this.dateFormatter(new Date());
+  timer: NodeJS.Timer;
 
   constructor(
     private authService: AuthService,
@@ -45,6 +46,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
       this.customer = loggedInUser;
       this.setButtonColor(this.customer.status);
       if (this.customer.availableFrom) {
+        console.log('if customer availablefrom -> ' + this.customer.availableFrom);
         this.selectedDate = this.dateFormatter(new Date(this.customer.availableFrom));
         this.handleCountDownTimer(this.customer.availableFrom);
       }
@@ -96,6 +98,24 @@ export class Tab2Page implements OnInit, AfterContentInit {
     }
   }
 
+  // TODO FIX
+  relocate = () => {
+    this.userService.getCustomerByUserId(this.customer.user.id).subscribe(cstmr => {
+      if (cstmr.position && typeof cstmr.position === 'string') {
+        const pos: Position = JSON.parse(cstmr.position);
+        map.flyTo(new LatLng(pos.latitude, pos.longitude), 16);
+      }
+    });
+  //   console.log('hellO');
+  //   if (navigator.geolocation) {
+  //   console.log('van geo');
+  //   navigator.geolocation.getCurrentPosition(position => {
+  //     console.log('juhe');
+  //     map.flyTo(new LatLng(position.coords.latitude, position.coords.longitude));
+  //   });
+  // }
+  }
+
   onLocationFound = (location: LocationEvent) => {
     if (markers.length > 0) {
       map.removeLayer(markers.pop());
@@ -142,12 +162,9 @@ export class Tab2Page implements OnInit, AfterContentInit {
 
 
   onStatusChange = (customerId: number, status: number) => {
-    // TODO kell ez ?
-    // if (status === Status.AVAILABLE) {
-    //   this.userService.deleteAvailableFromDateById(this.customer.id).subscribe(() => {
-    //     console.log('delete available_from date from db');
-    //   });
-    // }
+    if (status === Status.AVAILABLE) {
+      clearInterval(this.timer);
+    }
     if (status === Status.NOT_AVAILABLE) {
       this.displayDateSelector();
     }
@@ -190,8 +207,10 @@ export class Tab2Page implements OnInit, AfterContentInit {
 
   // number in milliseconds
   handleCountDownTimer = (availableFromDate: number) => {
-    // TODO ha korábban indult timer, az ketyeg tovább miután váltok. ezt kezelni KELL
-    const cnt = setInterval(() => {
+    // if user sets timer multiple times then first the timer will be cleard
+    clearInterval(this.timer);
+
+    this.timer = setInterval(() => {
       // Get today's date and time
       const now = new Date().getTime();
 
@@ -211,18 +230,13 @@ export class Tab2Page implements OnInit, AfterContentInit {
 
       // If the count down is finished, change back button's color and the value in db
       if (distance <= 0) {
-        clearInterval(cnt);
+        clearInterval(this.timer);
         this.setButtonColor(Status.AVAILABLE);
         this.userService.updateCustomerStatus(this.customer.id, Status.AVAILABLE).subscribe(() => {
-          this.userService.deleteAvailableDateById(this.customer.id).subscribe(() => {
-            console.log('customer updated after timer reaches the zero');
-          });
         });
       }
     }, 1000);
-
   }
-
 
   // Should I use these calls here?
   ngAfterContentInit() {
