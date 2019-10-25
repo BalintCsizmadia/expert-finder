@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS authorities;
 DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS professions;
 DROP TABLE IF EXISTS visitors;
 DROP TABLE IF EXISTS users;
 
@@ -19,6 +20,13 @@ CREATE TABLE visitors (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
+
+CREATE TABLE professions (
+    id SERIAL PRIMARY KEY,
+    name_en TEXT,
+    name_hu TEXT
+);
+
 CREATE TABLE customers (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -26,14 +34,15 @@ CREATE TABLE customers (
     first_name TEXT,
     last_name TEXT,
     phone_number TEXT,
-    profession TEXT,
+    profession_id INTEGER,
     is_active BOOLEAN,
     position JSON,
   -- default_position JSON ?
     status INTEGER,
     available_from TIMESTAMP,
     registration_date DATE,
-    FOREIGN KEY(user_id) REFERENCES users(id)
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(profession_id) REFERENCES professions(id)
 );
 
 CREATE TABLE authorities (
@@ -42,3 +51,4 @@ CREATE TABLE authorities (
     FOREIGN KEY (username) REFERENCES users(username),
     UNIQUE (username, authority)
 );
+
