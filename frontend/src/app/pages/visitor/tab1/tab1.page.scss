@@ -3,10 +3,15 @@
   overflow: hidden;
 }
 
-#search-btn {
-  position: fixed;
+#list-padding {
+  padding-bottom: 50px;
+}
+
+#search-buttons-wrapper {
+  width: 100%;
   z-index: 1000;
-  // in browser it seems god but ugly on phone
-  // margin: 40px 101px 0;
-  margin: 40% 38% 0;
+  position: fixed;
+  bottom: 0;
+  margin-bottom: 5%;
+  text-align: center;
 }
