@@ -8,7 +8,7 @@ export class Customer extends User {
   private _firstName: string;
   private _lastName: string;
   private _phoneNumber: string;
-  private _profession: string;
+  private _professionId: number;
   private _isActive: boolean;
   // '_position' arrives from database as a 'string'
   // then it will be a 'Position' object
@@ -45,12 +45,12 @@ export class Customer extends User {
     this._phoneNumber = phoneNumber;
   }
 
-  public get profession(): string {
-    return this._profession;
+  public get professionId(): number {
+    return this._professionId;
   }
 
-  public set profession(profession: string) {
-    this._profession = profession;
+  public set professionId(profession: number) {
+    this._professionId = profession;
   }
 
   public get isActive(): boolean {

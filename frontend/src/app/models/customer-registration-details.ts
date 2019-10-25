@@ -8,7 +8,7 @@ export class CustomerRegistrationDetails {
     private _firstName: string;
     private _lastName: string;
     private _phoneNumber: string;
-    private _profession: string;
+    private _professionId: any;
     private _position: Position;
 
     public get username(): string {
@@ -63,12 +63,12 @@ export class CustomerRegistrationDetails {
         this._phoneNumber = phoneNumber.trim().replace(/\s+/g, '');
     }
 
-    public get profession(): string {
-        return this._profession;
+    public get professionId(): any {
+        return this._professionId;
     }
 
-    public set profession(profession: string) {
-        this._profession = profession;
+    public set professionId(professionId: any) {
+        this._professionId = professionId;
     }
 
     public get position(): Position {
