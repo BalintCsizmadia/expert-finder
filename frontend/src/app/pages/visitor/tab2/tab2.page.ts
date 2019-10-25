@@ -1,11 +1,13 @@
-import { Component, OnInit, AfterContentInit } from '@angular/core';
-import { Map, tileLayer, marker, icon, LatLngExpression, Marker, LocationEvent } from 'leaflet';
+import { Component, OnInit, AfterContentInit, ChangeDetectorRef } from '@angular/core';
+import { Map, tileLayer, marker, icon, LatLngExpression, Marker, LocationEvent, LatLng } from 'leaflet';
 import { UserService } from 'src/app/services/user.service';
 import { Customer } from 'src/app/models/customer';
-import { Position } from 'src/app/models/interfaces';
+import { Position, Profession } from 'src/app/models/interfaces';
 import { AuthService } from 'src/app/services/auth.service';
 import { Status } from 'src/app/models/enums';
 import { NavController } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
+import { ProfessionService } from 'src/app/services/profession.service';
 
 // tiles:
 const Original = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -32,6 +34,8 @@ const DEFAULT_ZOOM_LEVEL = 13;
 let map: Map;
 // storage for markers
 const markers: Marker[] = [];
+// storage for customers' markers
+const customerMarkers: Marker[] = [];
 
 @Component({
   selector: 'app-tab2',
@@ -40,14 +44,26 @@ const markers: Marker[] = [];
 })
 export class Tab2Page implements OnInit, AfterContentInit {
 
+  currentLocation: Position;
+  professions: Profession[] = [];
 
-  constructor(private authService: AuthService, private userService: UserService, private navCtrl: NavController) { }
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+    private professionService: ProfessionService,
+    private navCtrl: NavController,
+    private route: ActivatedRoute
+  ) {
+    this.addCustomersToMap();
+  }
 
   ngOnInit() {
     // auth user
     this.authService.getAuth().subscribe(usr => {
       // TODO ?
-      console.log(usr);
+    });
+    this.professionService.getAllProfessions().then((professions: Profession[]) => {
+      this.professions = professions;
     });
     // currently the map's starting postion points to Budapest, Hungary
     map = new Map('map').setView(COORDINATES_OF_BUDAPEST, DEFAULT_ZOOM_LEVEL);
@@ -56,7 +72,18 @@ export class Tab2Page implements OnInit, AfterContentInit {
       minZoom: 1,
       maxZoom: 19
     }).addTo(map);
-    this.addCustomersToMap();
+    // when user comes from 'tab1' - search page
+    this.route.queryParams.subscribe(params => {
+      const professionId = params.professionId;
+      if (professionId) {
+        this.addCustomersToMap();
+      }
+    });
+    // TODO TEMP SOLUTION for getting data from db in every minutes
+    setInterval(() => {
+      // displays customers on map
+      this.addCustomersToMap();
+    }, 60000);
     // watch:
     // If true, starts continuous watching of location changes (instead of detecting it once)
     // using W3C watchPosition method. You can later stop watching using map.stopLocate() method.
@@ -89,6 +116,12 @@ export class Tab2Page implements OnInit, AfterContentInit {
     markers.push(myMarker);
     // TODO use it or not?
     // L.circle(locationEvent.latlng, locationEvent.accuracy, { opacity: 0.4, fillOpacity: 0.1 }).addTo(map);
+    // uses for relocation
+    this.currentLocation = this.getCurrentUserPosition(location);
+  }
+
+  getCurrentUserPosition = (location: LocationEvent) => {
+    return { latitude: location.latlng.lat, longitude: location.latlng.lng, timestamp: new Date() };
   }
 
   onLocationClick(myMarker: Marker, latitude: number, longitude: number, customer?: Customer) {
@@ -114,12 +147,34 @@ export class Tab2Page implements OnInit, AfterContentInit {
             ></img>
             <b> ${customer.firstName + ' ' + customer.lastName}</b>
             </div>
-            ${customer.profession}
+            <!-- ${customer.professionId} -->
+            ${this.professionFilter(this.professions, customer.professionId)[0].name}
             <br>
-            <p>Phone number: <span><b>${customer.phoneNumber}</b></span></p>`)
+            <p>Phone number: <span><b>${customer.phoneNumber}</b></span></p>
+            ${customer.status === Status.NOT_AVAILABLE && customer.availableFrom
+              ? '<p>Available from: ' + '<span>' + this.getFormattedDate(new Date(customer.availableFrom)) + '</span></p>'
+              : ''
+            }`)
           .openPopup();
       }
     }
+  }
+
+  private professionFilter = (professions: Profession[], professionId: number) => {
+    if (professions.length > 0) {
+      return professions.filter((profession: Profession) => {
+        return profession.id === professionId;
+      });
+    }
+  }
+
+  private getFormattedDate(dt: Date) {
+    return `${
+      dt.getFullYear().toString().padStart(4, '0')}-${
+      (dt.getMonth() + 1).toString().padStart(2, '0')}-${
+      dt.getDate().toString().padStart(2, '0')} ${
+      dt.getHours().toString().padStart(2, '0')}:${
+      dt.getMinutes().toString().padStart(2, '0')}`;
   }
 
   onLocationError(e: any) {
@@ -127,17 +182,39 @@ export class Tab2Page implements OnInit, AfterContentInit {
     map.on('locationfound', this.onLocationFound);
   }
 
+  // TODO REFACTOR
   addCustomersToMap = () => {
-    this.userService.getCustomers().subscribe((customersArray: Customer[]) => {
-      customersArray.map((customer: Customer) => {
-        // 'position' data member comes from the database as a string
-        if (typeof customer.position === 'string') {
-          const position: Position = JSON.parse(customer.position);
-          // rewrite 'position' data member with its parsed value
-          customer.position = position;
-        }
-        this.addLocationIconToMap(customer);
-      });
+    // remove previous (customer) markers
+    customerMarkers.map((singleMarker: Marker) => {
+      map.removeLayer(singleMarker);
+    });
+    this.route.queryParams.subscribe(params => {
+      const professionId = params.professionId;
+      if (professionId) {
+        this.userService.getCustomersByProfession(professionId).subscribe((customersArray: Customer[]) => {
+          customersArray.map((customer: Customer) => {
+            // 'position' data member comes from the database as a string
+            if (typeof customer.position === 'string') {
+              const position: Position = JSON.parse(customer.position);
+              // rewrite 'position' data member with its parsed value
+              customer.position = position;
+            }
+            this.addLocationIconToMap(customer);
+          });
+        });
+      } else {
+        this.userService.getCustomers().subscribe((customersArray: Customer[]) => {
+          customersArray.map((customer: Customer) => {
+            // 'position' data member comes from the database as a string
+            if (typeof customer.position === 'string') {
+              const position: Position = JSON.parse(customer.position);
+              // rewrite 'position' data member with its parsed value
+              customer.position = position;
+            }
+            this.addLocationIconToMap(customer);
+          });
+        });
+      }
     });
   }
 
@@ -156,6 +233,8 @@ export class Tab2Page implements OnInit, AfterContentInit {
       }).addTo(map).on('click', () => {
         this.onLocationClick(mrkr, coordinates[0], coordinates[1], customer);
       });
+      // store markers
+      customerMarkers.push(mrkr);
     } else {
       // TODO error handling
       console.error('"position" data is missing');
@@ -165,7 +244,10 @@ export class Tab2Page implements OnInit, AfterContentInit {
   onSearchInputClick() {
     console.log('yo');
     this.navCtrl.navigateForward('/visitor/tabs/tab1');
+  }
 
+  relocate = (currentLocation: Position) => {
+    map.flyTo(new LatLng(currentLocation.latitude, currentLocation.longitude), 16);
   }
 
   // Should I use these calls here?
