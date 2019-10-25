@@ -33,7 +33,8 @@ export class Tab2Page implements OnInit, AfterContentInit {
   notAvailableButtonColor = 'primary';
   // date when current customer will be available
   selectedDate = this.dateFormatter(new Date());
-  timer: NodeJS.Timer;
+  // NodeJS.Timer
+  timer: any;
 
   constructor(
     private authService: AuthService,

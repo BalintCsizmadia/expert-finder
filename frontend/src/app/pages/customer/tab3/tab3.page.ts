@@ -15,6 +15,5 @@ export class Tab3Page {
     this.authService.deleteAuth();
     this.navCtrl.navigateBack('');
    // this.navCtrl.navigateForward('/visitor/tabs/tab1');
-
   }
 }
