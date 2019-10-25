@@ -6,7 +6,6 @@ import { Customer } from '../models/customer';
 import { RegistrationDetails } from '../models/login-details';
 import { CustomerRegistrationDetails } from '../models/customer-registration-details';
 import { URL_PREFIX } from 'src/environments/environment';
-import { Status } from '../models/enums';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +29,7 @@ export class UserService {
         firstName: details.firstName,
         lastName: details.lastName,
         phoneNumber: details.phoneNumber,
-        profession: details.profession,
+        professionId: details.professionId,
         position: JSON.stringify(details.position)
       });
     } else {
@@ -77,9 +76,9 @@ export class UserService {
     return this.http.put<number>(`${URL_PREFIX}/customers/${id}/position`, { position: currentPosition });
   }
 
-  // TODO here?
-  getProfessionsByLanguage(currentLanguage: string): Observable<any> {
-    return this.http.post<any>(`${URL_PREFIX}/customers/professions`, { language: currentLanguage });
+  // TODO type fix
+  getCustomersByProfession(selectedProfession: string): Observable<any> {
+    return this.http.post<any>(`${URL_PREFIX}/customers/profession`, { profession: selectedProfession });
   }
 
 }
