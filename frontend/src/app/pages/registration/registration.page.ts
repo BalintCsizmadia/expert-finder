@@ -4,8 +4,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { RegistrationDetails } from 'src/app/models/login-details';
 import { RegistrationService } from 'src/app/services/registration.service';
 import { CustomerRegistrationDetails } from 'src/app/models/customer-registration-details';
-import { Position } from 'src/app/models/interfaces';
-import { UserService } from 'src/app/services/user.service';
+import { Position, Profession } from 'src/app/models/interfaces';
+import { ProfessionService } from 'src/app/services/profession.service';
 
 enum RegistrationType {
   VISITOR,
@@ -22,37 +22,24 @@ export class RegistrationPage implements OnInit {
   registrationDetails = new RegistrationDetails();
   customerRegistrationDetails = new CustomerRegistrationDetails();
   regType: RegistrationType = RegistrationType.VISITOR;
-  professions = [];
+  professions: Profession[] = [];
   message: string;
   RESOURCE_CREATED = 201;
   UNAUTHORIZED = 401;
 
   constructor(
     private registerService: RegistrationService,
-    private userService: UserService,
+    private professionService: ProfessionService,
     private translateService: TranslateService,
     private navCtrl: NavController
   ) { }
 
   ngOnInit() {
-    this.addProfessionsToArray();
+    this.professionService.getAllProfessions().then((professions: Profession[]) => {
+      this.professions = professions;
+    });
     // get users actual position
     this.getAndSetLocation(this.customerRegistrationDetails);
-  }
-
-  private addProfessionsToArray() {
-    this.translateService.get('registration.professions').subscribe(
-      (professionArray: string[]) => {
-        professionArray.map((profession: string) => {
-          this.professions.push(profession);
-        });
-      }
-    );
-  }
-
-  // TODO use it later
-  private getCurrentLanguage(translateService: TranslateService) {
-    return translateService.currentLang ? translateService.currentLang : translateService.defaultLang;
   }
 
   private getAndSetLocation(customerRegDetails: CustomerRegistrationDetails) {
@@ -124,7 +111,7 @@ export class RegistrationPage implements OnInit {
     } else if (!details.phoneNumber) {
       this.displayMessage('registration.missing-phone-number');
       return;
-    } else if (!details.profession) {
+    } else if (!details.professionId) {
       this.displayMessage('registration.missing-profession');
       return;
     } else if (!this.isValidPhoneNumber(details.phoneNumber)) {
@@ -172,6 +159,8 @@ export class RegistrationPage implements OnInit {
       details.role = regType;
     } else if (regType === RegistrationType.CUSTOMER) {
       details = this.customerRegistrationDetails;
+      // FIXME this casting is important
+      details.professionId = +details.professionId;
       details.role = regType;
     }
     this.registerService.register(details).subscribe((status: any) => {
