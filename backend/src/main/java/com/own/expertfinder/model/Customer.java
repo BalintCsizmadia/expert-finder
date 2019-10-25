@@ -21,7 +21,7 @@ public class Customer extends AbstractModel implements Serializable, GeneralUser
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private String profession;
+    private Integer professionId;
     private Boolean isActive;
     // TODO Choose the right solution
     // @Convert(converter = HashMapConverter.class)
@@ -79,12 +79,12 @@ public class Customer extends AbstractModel implements Serializable, GeneralUser
         this.phoneNumber = phoneNumber;
     }
 
-    public String getProfession() {
-        return profession;
+    public Integer getProfessionId() {
+        return professionId;
     }
 
-    public void setProfession(String profession) {
-        this.profession = profession;
+    public void setProfessionId(Integer professionId) {
+        this.professionId = professionId;
     }
 
     public Boolean getActive() {

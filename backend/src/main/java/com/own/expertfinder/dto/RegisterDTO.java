@@ -8,8 +8,8 @@ public class RegisterDTO {
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private String profession;
-   // private Boolean isActive;
+    private Integer professionId;
+    // private Boolean isActive;
     // @Convert(converter = HashMapConverter.class)
     // private Map<String, Object> position;
     private String position;
@@ -41,8 +41,8 @@ public class RegisterDTO {
         return phoneNumber;
     }
 
-    public String getProfession() {
-        return profession;
+    public Integer getProfessionId() {
+        return professionId;
     }
 
     public String getPosition() {
