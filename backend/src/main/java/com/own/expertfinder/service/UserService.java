@@ -99,7 +99,7 @@ public class UserService {
                 customer.setFirstName(registrationData.getFirstName());
                 customer.setLastName(registrationData.getLastName());
                 customer.setPhoneNumber(registrationData.getPhoneNumber());
-                customer.setProfession(registrationData.getProfession());
+                customer.setProfessionId(registrationData.getProfessionId());
                 customer.setPosition(registrationData.getPosition());
                 customer.setRegistrationDate(new Date());
                 customerService.add(customer);

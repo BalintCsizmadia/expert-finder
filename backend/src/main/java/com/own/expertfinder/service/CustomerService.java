@@ -1,7 +1,9 @@
 package com.own.expertfinder.service;
 
+import com.own.expertfinder.dto.ProfessionDTO;
 import com.own.expertfinder.model.Customer;
 import com.own.expertfinder.repository.CustomerRepository;
+import com.own.expertfinder.repository.ProfessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,9 @@ import java.util.List;
 public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private ProfessionRepository professionRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -36,7 +41,7 @@ public class CustomerService {
                 customer.getFirstName(),
                 customer.getLastName(),
                 customer.getPhoneNumber(),
-                customer.getProfession(),
+                customer.getProfessionId(),
                 customer.getPosition()
         );
         /*
@@ -83,6 +88,19 @@ public class CustomerService {
                 customer.getId()
         );
          */
+    }
+
+    public List<ProfessionDTO> getProfessions() {
+        return professionRepository.findAll();
+    }
+
+    /**
+     *
+     * @param professionId int
+     * @return List of Customers with the given profession
+     */
+    public List<Customer> getCustomersByProfessionId(Integer professionId) {
+        return customerRepository.findAllByProfessionId(professionId);
     }
 
 }

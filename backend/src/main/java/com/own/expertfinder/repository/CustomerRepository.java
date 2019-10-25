@@ -1,5 +1,6 @@
 package com.own.expertfinder.repository;
 
+import com.own.expertfinder.dto.ProfessionDTO;
 import com.own.expertfinder.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,6 +16,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     List<Customer> findAll();
 
+    List<Customer> findAllByProfessionId(Integer professionId);
+
     @Override
     Customer getOne(Integer integer);
 
@@ -23,7 +26,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     @Modifying
     @Transactional
     @Query(value = "INSERT INTO customers " +
-            "(user_id, email, first_name, last_name, phone_number, profession, position, registration_date) " +
+            "(user_id, email, first_name, last_name, phone_number, profession_id, position, registration_date) " +
             "VALUES (?1, ?2, ?3, ?4, ?5, ?6, CAST(?7 AS json), NOW())",
             nativeQuery = true)
     int add(
@@ -32,7 +35,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
             String firstName,
             String lastName,
             String phoneNumber,
-            String profession,
+            Integer professionId,
             String position
     );
 
