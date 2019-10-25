@@ -1,5 +1,6 @@
 package com.own.expertfinder.controller;
 
+import com.own.expertfinder.dto.ProfessionDTO;
 import com.own.expertfinder.model.Customer;
 import com.own.expertfinder.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,22 @@ public class CustomerController {
     public int updatePosition(@PathVariable("id") Integer id, @RequestBody Map<String, String> req) {
         String position = req.get("position");
         return customerService.updatePosition(id, position);
+    }
+
+    @RequestMapping(path = "/customers/profession",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public List<Customer> getCustomersByProfession(@RequestBody Map<String, String> req) {
+        Integer professionId = Integer.parseInt(req.get("profession"));
+        return customerService.getCustomersByProfessionId(professionId);
+    }
+
+    // TODO Refactor
+    @RequestMapping(path = "/professions",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public List<ProfessionDTO> getProfessions() {
+        return customerService.getProfessions();
     }
 
 
