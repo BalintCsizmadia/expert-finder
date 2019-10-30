@@ -1,5 +1,11 @@
 {
     "clear": "",
+    "menu": {
+        "search": "Keresés",
+        "map": "Térkép",
+        "profile": "Profil",
+        "settings": "Beállítások"
+    },
     "registration": {
         "title": "Regisztráció",
         "registration-text": "Regisztráció",
@@ -37,5 +43,8 @@
     },
     "marker": {
         "hereyouare": "Itt állsz"
+    },
+    "search": {
+        "filter": "Szűrés"
     }
 }

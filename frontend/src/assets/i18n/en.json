@@ -1,5 +1,11 @@
 {
     "clear": "",
+    "menu": {
+        "search": "Search",
+        "map": "Map",
+        "profile": "Profile",
+        "settings": "Settings"
+    },
     "registration": {
         "title": "Registration",
         "registration-text": "Sign up",
@@ -37,5 +43,8 @@
     },
     "marker": {
         "hereyouare": "Your position"
+    },
+    "search": {
+        "filter": "Filter"
     }
 }
