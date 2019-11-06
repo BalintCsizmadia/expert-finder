@@ -1,6 +1,5 @@
 package com.own.expertfinder.controller;
 
-import com.own.expertfinder.dto.ProfessionDTO;
 import com.own.expertfinder.model.Customer;
 import com.own.expertfinder.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,14 +64,5 @@ public class CustomerController {
         Integer professionId = Integer.parseInt(req.get("profession"));
         return customerService.getCustomersByProfessionId(professionId);
     }
-
-    // TODO Refactor
-    @RequestMapping(path = "/professions",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public List<ProfessionDTO> getProfessions() {
-        return customerService.getProfessions();
-    }
-
 
 }

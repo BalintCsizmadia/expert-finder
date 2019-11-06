@@ -5,6 +5,7 @@ import com.own.expertfinder.exception.UserAlreadyExistsException;
 import com.own.expertfinder.model.Customer;
 import com.own.expertfinder.model.User;
 import com.own.expertfinder.model.Visitor;
+import com.own.expertfinder.repository.CustomerRepository;
 import com.own.expertfinder.repository.UserRepository;
 import com.own.expertfinder.repository.VisitorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +31,8 @@ public class UserService {
     @Autowired
     private VisitorRepository visitorRepository;
 
-    // TODO try to use repository
     @Autowired
-    private CustomerService customerService;
+    private CustomerRepository customerRepository;
 
     @Autowired
     private UserDetailsManager userDetailsManager;
@@ -80,7 +80,7 @@ public class UserService {
                     passwordEncoder.encode(registrationData.getPassword()),
                     AuthorityUtils.createAuthorityList("ROLE_" + role))
             );
-            // TODO some pattern here
+            // TODO Refactor
             User user = getUserByName(registrationData.getUsername());
             if (registrationData.getRole() == Role.VISITOR.getRole()) {
                 // Register a VISITOR
@@ -102,7 +102,15 @@ public class UserService {
                 customer.setProfessionId(registrationData.getProfessionId());
                 customer.setPosition(registrationData.getPosition());
                 customer.setRegistrationDate(new Date());
-                customerService.add(customer);
+                customerRepository.add(
+                        customer.getUser().getId(),
+                        customer.getEmail(),
+                        customer.getFirstName(),
+                        customer.getLastName(),
+                        customer.getPhoneNumber(),
+                        customer.getProfessionId(),
+                        customer.getPosition()
+                );
             }
             return RESOURCE_CREATED;
             // user.setRegistrationDate(new Date());
