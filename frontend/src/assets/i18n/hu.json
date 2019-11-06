@@ -32,7 +32,8 @@
         "registration": "Regisztráció",
         "all-empty": "Kérjük töltse ki a megadott mezőket",
         "missing-email": "Kérjük adjon meg egy email címet",
-        "missing-password": "Kérjük adjon meg egy jelszót"
+        "missing-password": "Kérjük adjon meg egy jelszót",
+        "wrong-data": "Hibás email cím vagy jelszó"
     },
     "map": {
         "title": "Térkép"

@@ -32,7 +32,8 @@
         "registration": "Sign up",
         "all-empty": "Please fill out the given field",
         "missing-email": "Email address is missing",
-        "missing-password": "Password is missing"
+        "missing-password": "Password is missing",
+        "wrong-data": "Wrong email address or password"
     },
     "map": {
         "title": "Map"
