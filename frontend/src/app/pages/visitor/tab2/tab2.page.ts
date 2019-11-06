@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterContentInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterContentInit } from '@angular/core';
 import { Map, tileLayer, marker, icon, LatLngExpression, Marker, LocationEvent, LatLng } from 'leaflet';
 import { UserService } from 'src/app/services/user.service';
 import { Customer } from 'src/app/models/customer';
@@ -28,8 +28,8 @@ const Wikimedia = tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.
 
 // layer
 const MAP_TILE_LAYER = 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png';
-const COORDINATES_OF_BUDAPEST: LatLngExpression = [47.498, 19.03];
-const DEFAULT_ZOOM_LEVEL = 13;
+const COORDINATES_OF_BUDAPEST: LatLngExpression = [47.498, 19.05];
+const DEFAULT_ZOOM_LEVEL = 12;
 // map
 let map: Map;
 // storage for markers
@@ -59,9 +59,13 @@ export class Tab2Page implements OnInit, AfterContentInit {
 
   ngOnInit() {
     // auth user
-    this.authService.getAuth().subscribe(usr => {
-      // TODO ?
+    const user = this.authService.getCurrentUser();
+    this.userService.getUserById(+user.id).subscribe(usr => {
+      console.log(usr);
     });
+    // this.authService.getAuth().subscribe(usr => {
+    //   // TODO ?
+    // });
     this.professionService.getAllProfessions().then((professions: Profession[]) => {
       this.professions = professions;
     });
@@ -242,7 +246,6 @@ export class Tab2Page implements OnInit, AfterContentInit {
   }
 
   onSearchInputClick() {
-    console.log('yo');
     this.navCtrl.navigateForward('/visitor/tabs/tab1');
   }
 

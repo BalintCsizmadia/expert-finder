@@ -43,7 +43,10 @@ export class Tab2Page implements OnInit, AfterContentInit {
   ) { }
 
   ngOnInit() {
-    this.authService.getAuth().subscribe(loggedInUser => {
+    // TODO: Ez jól működik böngészőből de készülékről nem autentikál login adatok nélkül
+    // this.authService.getAuth().subscribe(loggedInUser => {
+    const user = this.authService.getCurrentUser();
+    this.userService.getCustomerByUserId(+user.id).subscribe(loggedInUser => {
       this.customer = loggedInUser;
       this.setButtonColor(this.customer.status);
       if (this.customer.availableFrom) {

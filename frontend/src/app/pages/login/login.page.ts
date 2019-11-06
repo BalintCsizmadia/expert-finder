@@ -4,7 +4,9 @@ import { AuthService } from 'src/app/services/auth.service';
 import { NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { UserService } from 'src/app/services/user.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
+const UNAUTHORIZED = 401;
 
 enum Role {
   VISITOR = 'ROLE_VISITOR',
@@ -58,10 +60,19 @@ export class LoginPage implements OnInit {
   private loginSuccess() {
     // TODO REFACTOR
     this.authService.getAuth(this.loginDetails).subscribe(user => {
+      // set user to localStorage
+      this.authService.setCurrentUser(user);
       if (user.authorities && user.authorities[0] === Role.VISITOR) {
         this.navCtrl.navigateForward('/visitor/tabs/tab2');
       } else if (!user.authorities && user.user) {
         this.navCtrl.navigateForward('/customer/tabs/tab2');
+      }
+    }, (err: HttpErrorResponse) => {
+      if (err.status === UNAUTHORIZED) {
+        console.error(err.statusText);
+        this.displayMessage('login.wrong-data');
+      } else {
+        console.error(err);
       }
     });
   }
