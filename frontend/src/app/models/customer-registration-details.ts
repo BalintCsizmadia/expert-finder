@@ -19,17 +19,13 @@ export class CustomerRegistrationDetails {
         this._username = username.trim().replace(/\s+/g, '');
     }
 
-
     public get role(): number {
         return this._role;
     }
 
-
     public set role(role: number) {
         this._role = role;
     }
-
-
 
     public get password(): string {
         return this._password;

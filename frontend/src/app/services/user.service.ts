@@ -6,6 +6,7 @@ import { Customer } from '../models/customer';
 import { RegistrationDetails } from '../models/login-details';
 import { CustomerRegistrationDetails } from '../models/customer-registration-details';
 import { URL_PREFIX } from 'src/environments/environment';
+import { LoggedInUser } from '../models/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -59,11 +60,15 @@ export class UserService {
     return this.http.get<Customer[]>(`${URL_PREFIX}/customers`);
   }
 
-  getCustomerByUserId(userId: number): Observable<Customer> {
-    return this.http.get<Customer>(`${URL_PREFIX}/customers/${userId}`);
+  getCustomerByUserId(userId: number): Observable<LoggedInUser> {
+    return this.http.get<LoggedInUser>(`${URL_PREFIX}/customers/${userId}`);
   }
 
   // update
+  /**
+   * @param id customerId
+   * @param statusInteger (0) - AVAILAbLE; (1) - UNAVAILABLE
+   */
   updateCustomerStatus(id: number, statusInteger: number): Observable<number> {
     return this.http.put<number>(`${URL_PREFIX}/customers/${id}`, { status: statusInteger });
   }

@@ -6,6 +6,11 @@ import { RegistrationService } from 'src/app/services/registration.service';
 import { CustomerRegistrationDetails } from 'src/app/models/customer-registration-details';
 import { Position, Profession } from 'src/app/models/interfaces';
 import { ProfessionService } from 'src/app/services/profession.service';
+import { HttpErrorResponse } from '@angular/common/http';
+
+// status codes
+const RESOURCE_CREATED = 201;
+const UNAUTHORIZED = 401;
 
 enum RegistrationType {
   VISITOR,
@@ -24,8 +29,6 @@ export class RegistrationPage implements OnInit {
   regType: RegistrationType = RegistrationType.VISITOR;
   professions: Profession[] = [];
   message: string;
-  RESOURCE_CREATED = 201;
-  UNAUTHORIZED = 401;
 
   constructor(
     private registerService: RegistrationService,
@@ -164,14 +167,14 @@ export class RegistrationPage implements OnInit {
       details.role = regType;
     }
     this.registerService.register(details).subscribe((status: any) => {
-      if (status === this.RESOURCE_CREATED) {
+      if (status === RESOURCE_CREATED) {
         // success
         this.navCtrl.navigateBack('/');
       } else {
         console.error('Something went wrong, response is ' + status);
       }
-    }, (err) => {
-      if (err.error.status === this.UNAUTHORIZED) {
+    }, (err: HttpErrorResponse) => {
+      if (err.error.status === UNAUTHORIZED) {
         this.displayMessage(err.error.message);
       } else {
         console.error(err);

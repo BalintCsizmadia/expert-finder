@@ -49,7 +49,7 @@ export class Tab1Page implements OnInit, AfterContentInit {
         professionId: +this.selectedProfession
       }
     };
-    this.navCtrl.navigateForward('/visitor/tabs/tab2', params);
+    this.navCtrl.navigateBack('/visitor/tabs/tab2', params);
   }
 
 
