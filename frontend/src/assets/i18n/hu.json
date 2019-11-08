@@ -33,7 +33,8 @@
         "all-empty": "Kérjük töltse ki a megadott mezőket",
         "missing-email": "Kérjük adjon meg egy email címet",
         "missing-password": "Kérjük adjon meg egy jelszót",
-        "wrong-data": "Hibás email cím vagy jelszó"
+        "wrong-data": "Hibás email cím vagy jelszó",
+        "connection-error": "Kapcsolódási hiba. Próbáld meg később"
     },
     "map": {
         "title": "Térkép"

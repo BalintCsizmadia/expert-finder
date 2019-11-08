@@ -33,7 +33,8 @@
         "all-empty": "Please fill out the given field",
         "missing-email": "Email address is missing",
         "missing-password": "Password is missing",
-        "wrong-data": "Wrong email address or password"
+        "wrong-data": "Wrong email address or password",
+        "connection-error": "Connection error. Come back later"
     },
     "map": {
         "title": "Map"
