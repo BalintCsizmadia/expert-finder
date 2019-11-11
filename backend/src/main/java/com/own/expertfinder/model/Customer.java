@@ -2,18 +2,16 @@ package com.own.expertfinder.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.own.expertfinder.interfaces.GeneralUserInterface;
-import com.own.expertfinder.util.HashMapConverter;
+import com.own.expertfinder.interfaces.RegisteredUser;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Map;
 
 @Entity
 @Table(name = "customers", schema = "public")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Customer extends AbstractModel implements Serializable, GeneralUserInterface {
+public class Customer extends AbstractModel implements Serializable, RegisteredUser {
     private String email;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")

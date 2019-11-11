@@ -2,7 +2,7 @@ package com.own.expertfinder.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.own.expertfinder.interfaces.GeneralUserInterface;
+import com.own.expertfinder.interfaces.RegisteredUser;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +12,7 @@ import java.util.Date;
 @Entity
 @Table(name = "visitors", schema = "public")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Visitor extends AbstractModel implements Serializable, GeneralUserInterface {
+public class Visitor extends AbstractModel implements Serializable, RegisteredUser {
     private String email;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")

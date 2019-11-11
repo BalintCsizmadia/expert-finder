@@ -9,6 +9,7 @@ import com.own.expertfinder.repository.CustomerRepository;
 import com.own.expertfinder.repository.UserRepository;
 import com.own.expertfinder.repository.VisitorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,9 +22,6 @@ import java.util.List;
 
 @Component
 public class UserService {
-
-    // HTTP status code
-    private final int RESOURCE_CREATED = 201;
 
     @Autowired
     private UserRepository userRepository;
@@ -43,21 +41,6 @@ public class UserService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    /*
-    @Autowired
-    private SimpleUserService simpleUserService;
-
-    @Autowired
-    private CompanyService companyService;
-
-    public User getUserByName(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-    public List<User> getAll() {
-        return userRepository.findAll();
-    }
-     */
 
     public List<User> getAll() {
         return userRepository.findAll();
@@ -73,12 +56,13 @@ public class UserService {
 
     @Transactional
     public int add(RegisterDTO registrationData) throws UserAlreadyExistsException {
-        String role = (registrationData.getRole()) == 0 ? "VISITOR" : "CUSTOMER";
+        String role =
+                (registrationData.getRole() == Role.VISITOR.getRole()) ? Role.VISITOR.name() : Role.CUSTOMER.name();
         if (!userDetailsManager.userExists(registrationData.getUsername())) {
             userDetailsManager.createUser(new org.springframework.security.core.userdetails.User(
                     registrationData.getUsername(),
                     passwordEncoder.encode(registrationData.getPassword()),
-                    AuthorityUtils.createAuthorityList("ROLE_" + role))
+                    AuthorityUtils.createAuthorityList(createRoleString(role)))
             );
             // TODO Refactor
             User user = getUserByName(registrationData.getUsername());
@@ -112,11 +96,20 @@ public class UserService {
                         customer.getPosition()
                 );
             }
-            return RESOURCE_CREATED;
             // user.setRegistrationDate(new Date());
+            return HttpStatus.CREATED.value(); // 201 - RESOURCE CREATED
         } else {
             throw new UserAlreadyExistsException("Repeated registration attempt. User already exists.");
         }
+    }
+
+    /**
+     *
+     * @param role String (e.g., VISITOR, CUSTOMER)
+     * @return String with "ROLE_" prefix
+     */
+    private String createRoleString(String role) {
+        return "ROLE_" + role;
     }
 
 /*
@@ -211,86 +204,6 @@ public class UserService {
         }
     }
 
-    // TODO: Move to a new package as a regular method
-    public GoogleIdToken.Payload getGooglePayload(final String googleToken, final String clientId) {
-        HttpTransport transport = new NetHttpTransport();
-        JsonFactory jsonFactory = new JacksonFactory();
-
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-                .setAudience(Collections.singletonList(clientId))
-                .build();
-        GoogleIdToken idToken = null;
-        try {
-            idToken = verifier.verify(googleToken);
-        } catch (GeneralSecurityException | IOException e) {
-            logger.fatal("Unable to read google token.", e);
-        }
-        if (idToken != null) {
-            return idToken.getPayload();
-        }
-        return null;
-    }
-
-    @Transactional
-    public User getUserByGoogleToken(String token, String role) throws WrongRoleSelectionException {
-        final String CLIENT_ID = "899873551530-nq1cl62rki8ehf4qgc3dm8hnp9l5icvi.apps.googleusercontent.com";
-        User user;
-        GoogleIdToken.Payload payload = getGooglePayload(token, CLIENT_ID);
-
-        String email = payload.getEmail();
-        // creating username from the first part of the email address
-        String username = email.split("@")[0];
-        if (username.length() < 4) {
-            username = username + new Random().nextInt(900) + 100;
-        }
-        String firstName = (String) payload.get("given_name");
-        String lastName = (String) payload.get("family_name");
-        // Later
-        //   String name = (String) payload.get("name");
-        //   String pictureUrl = (String) payload.get("picture");
-        //   String locale = (String) payload.get("locale");
-
-        user = getGoogleAuthenticatedUser(username, role);
-
-        add(user);
-
-        String currentRole = user.getAuthorities().get(0).split("_")[1];
-
-        if (currentRole.equals(role)) {
-            if (role.equals("STUDENT") || role.equals("TEACHER")) {
-                try {
-                    simpleUserService.add(username, email, firstName, lastName, null);
-                } catch (WrongRoleSelectionException e) {
-                    logger.info("Wrong role selection.");
-                    throw new WrongRoleSelectionException();
-                }
-            } else if (role.equals("COMPANY")) {
-                try {
-                    // The default company name is the username
-                    // and the default subscription value is 'later'
-                    companyService.add(username, username, email, "later");
-                } catch (WrongRoleSelectionException e) {
-                    logger.info("Wrong role selection.");
-                    throw new WrongRoleSelectionException();
-                }
-            }
-        } else {
-            logger.info("Wrong role selection.");
-            throw new WrongRoleSelectionException();
-        }
-        return user;
-    }
-
-    public void update(Integer id, User usr) {
-        User user = userRepository.getOne(id);
-        user.setAll(usr);
-        userRepository.save(user);
-    }
-
-    public void delete(Integer id) {
-        userRepository.deleteById(id);
-    }
-
  */
 
     private enum Role {
@@ -303,7 +216,7 @@ public class UserService {
             this.value = value;
         }
 
-        public int getRole() {
+        private int getRole() {
             return this.value;
         }
     }

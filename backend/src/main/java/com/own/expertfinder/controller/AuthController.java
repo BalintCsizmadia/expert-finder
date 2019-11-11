@@ -1,6 +1,6 @@
 package com.own.expertfinder.controller;
 
-import com.own.expertfinder.interfaces.GeneralUserInterface;
+import com.own.expertfinder.interfaces.RegisteredUser;
 import com.own.expertfinder.model.User;
 import com.own.expertfinder.service.CustomerService;
 import com.own.expertfinder.service.UserService;
@@ -27,18 +27,17 @@ public class AuthController {
 
 
     @GetMapping("")
-    public GeneralUserInterface get(Principal principal) {
+    public RegisteredUser get(Principal principal) {
         User user = userService.getUserByName(principal.getName());
-        if (isRole("ROLE_VISITOR")) {
+        if (isRole(UserRole.VISITOR.getRole())) {
             return user;
-        } else if (isRole("ROLE_CUSTOMER")) {
+        } else if (isRole(UserRole.CUSTOMER.getRole())) {
             // returns Customer object
             return customerService.getOneByUserId(user.getId());
         } else {
             // TODO handle
             return null;
         }
-        // return userService.getUserByName(principal.getName());
     }
 
     @DeleteMapping("")
@@ -52,4 +51,18 @@ public class AuthController {
                 .anyMatch(r -> r.getAuthority().equals(role));
     }
 
+    private enum UserRole {
+        VISITOR("ROLE_VISITOR"),
+        CUSTOMER("ROLE_CUSTOMER");
+
+        private final String value;
+
+        UserRole(String value) {
+            this.value = value;
+        }
+
+        private String getRole() {
+            return this.value;
+        }
+    }
 }

@@ -1,7 +1,7 @@
 package com.own.expertfinder.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.own.expertfinder.interfaces.GeneralUserInterface;
+import com.own.expertfinder.interfaces.RegisteredUser;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "users", schema = "public")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class User extends AbstractModel implements Serializable, GeneralUserInterface {
+public class User extends AbstractModel implements Serializable, RegisteredUser {
 
     private String username;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
