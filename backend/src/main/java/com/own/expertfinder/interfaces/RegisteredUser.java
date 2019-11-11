@@ -1,4 +1,4 @@
 package com.own.expertfinder.interfaces;
 
-public interface GeneralUserInterface {
+public interface RegisteredUser {
 }
