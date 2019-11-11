@@ -8,16 +8,16 @@ export interface Position {
 }
 
 export interface LoggedInUser {
-  // is user a 'visitor'
+  // if user is a 'visitor'
   id: number;
   username: string;
   authorities: string[];
-  // if user a 'customer'
+  // if user is a 'customer'
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
   profession?: string;
-  // when GPS data are available. Esle default location displays
+  // when GPS data are available. Else default location displays
   isActive?: boolean;
   // '_position' arrives from database as a 'string'
   // then it will be a 'Position' object
