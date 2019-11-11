@@ -2,17 +2,37 @@ import { Injectable } from '@angular/core';
 import { RegistrationDetails } from '../models/login-details';
 import { Observable } from 'rxjs';
 import { CustomerRegistrationDetails } from '../models/customer-registration-details';
-import { UserService } from './user.service';
+import { HttpClient } from '@angular/common/http';
+import { URL_PREFIX } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RegistrationService {
 
-  constructor(private userService: UserService) { }
+  constructor(private http: HttpClient) { }
 
-  register(registerDetails: RegistrationDetails | CustomerRegistrationDetails): Observable<void> {
-    return this.userService.register(registerDetails);
+  register(details: RegistrationDetails | CustomerRegistrationDetails): Observable<any> { // returns user or exception
+    if (details instanceof RegistrationDetails) {
+      return this.http.post<any>(`${URL_PREFIX}/register`, {
+        username: details.username,
+        password: details.password,
+      });
+    } else if (details instanceof CustomerRegistrationDetails) {
+      return this.http.post<any>(`${URL_PREFIX}/register`, {
+        username: details.username,
+        password: details.password,
+        role: details.role,
+        firstName: details.firstName,
+        lastName: details.lastName,
+        phoneNumber: details.phoneNumber,
+        professionId: details.professionId,
+        position: JSON.stringify(details.position)
+      });
+    } else {
+      throw new Error('Something went wrong');
+    }
   }
+
 
 }

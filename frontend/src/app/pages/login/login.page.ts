@@ -3,10 +3,11 @@ import { LoginDetails } from 'src/app/models/login-details';
 import { AuthService } from 'src/app/services/auth.service';
 import { NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { UserService } from 'src/app/services/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LoggedInUser } from 'src/app/models/interfaces';
 
 const UNAUTHORIZED = 401;
+const GATEWAY_TIMEOUT = 504;
 
 enum Role {
   VISITOR = 'ROLE_VISITOR',
@@ -25,9 +26,9 @@ export class LoginPage implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private userService: UserService,
     private navCtrl: NavController,
-    public translateService: TranslateService) { }
+    public translateService: TranslateService
+  ) { }
 
   ngOnInit() {
   }
@@ -37,10 +38,8 @@ export class LoginPage implements OnInit {
       this.displayMessage('login.all-empty');
     } else if (!this.loginDetails.username) {
       this.displayMessage('login.missing-email');
-      return;
     } else if (!this.loginDetails.password) {
       this.displayMessage('login.missing-password');
-      return;
     } else {
       this.loginSuccess();
     }
@@ -59,20 +58,26 @@ export class LoginPage implements OnInit {
 
   private loginSuccess() {
     // TODO REFACTOR
-    this.authService.getAuth(this.loginDetails).subscribe(user => {
-      // set user to localStorage
-      this.authService.setCurrentUser(user);
-      if (user.authorities && user.authorities[0] === Role.VISITOR) {
-        this.navCtrl.navigateForward('/visitor/tabs/tab2');
-      } else if (!user.authorities && user.user) {
-        this.navCtrl.navigateForward('/customer/tabs/tab2');
-      }
-    }, (err: HttpErrorResponse) => {
-      if (err.status === UNAUTHORIZED) {
-        console.error(err.statusText);
-        this.displayMessage('login.wrong-data');
-      } else {
-        console.error(err);
+    this.authService.getAuth(this.loginDetails).subscribe({
+      next: (user: LoggedInUser) => {
+        console.log(user);
+        // set user into localStorage
+        this.authService.setCurrentUser(user);
+        if (user.authorities && user.authorities[0] === Role.VISITOR) {
+          this.navCtrl.navigateForward('/visitor/tabs/tab2');
+        } else if (!user.authorities && user.user) {
+          this.navCtrl.navigateForward('/customer/tabs/tab2');
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        this.displayMessage('');
+        if (err.status === UNAUTHORIZED) {
+          this.displayMessage('login.wrong-data');
+        } else if (err.status === GATEWAY_TIMEOUT) {
+          this.displayMessage('login.connection-error');
+        } else {
+          console.error(err);
+        }
       }
     });
   }

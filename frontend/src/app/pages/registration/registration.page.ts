@@ -41,23 +41,6 @@ export class RegistrationPage implements OnInit {
     this.professionService.getAllProfessions().then((professions: Profession[]) => {
       this.professions = professions;
     });
-    // get users actual position
-    this.getAndSetLocation(this.customerRegistrationDetails);
-  }
-
-  private getAndSetLocation(customerRegDetails: CustomerRegistrationDetails) {
-    if (navigator.geolocation) {
-      return navigator.geolocation.getCurrentPosition((position) => {
-        const userPosition: Position = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timestamp: new Date()
-        };
-        customerRegDetails.position = userPosition;
-      });
-    } else {
-      console.error('Geolocation is not supported');
-    }
   }
 
   onRegistrationClick() {
@@ -78,14 +61,11 @@ export class RegistrationPage implements OnInit {
       this.displayMessage('registration.all-empty');
     } else if (!details.username) {
       this.displayMessage('registration.missing-email');
-      return;
     } else if (!details.password) {
       this.displayMessage('registration.missing-password');
-      return;
     } else if (!this.isValidPassword(details.password)) {
       this.displayMessage('registration.short-password');
       this.registrationDetails.password = '';
-      return;
     } else {
       return true;
     }
@@ -97,29 +77,21 @@ export class RegistrationPage implements OnInit {
       this.displayMessage('registration.all-empty');
     } else if (!details.username) {
       this.displayMessage('registration.missing-email');
-      return;
     } else if (!details.password) {
       this.displayMessage('registration.missing-password');
-      return;
     } else if (!this.isValidPassword(details.password)) {
       this.displayMessage('registration.short-password');
       this.customerRegistrationDetails.password = '';
-      return;
     } else if (!details.firstName) {
       this.displayMessage('registration.missing-first-name');
-      return;
     } else if (!details.lastName) {
       this.displayMessage('registration.missing-last-name');
-      return;
     } else if (!details.phoneNumber) {
       this.displayMessage('registration.missing-phone-number');
-      return;
     } else if (!details.professionId) {
       this.displayMessage('registration.missing-profession');
-      return;
     } else if (!this.isValidPhoneNumber(details.phoneNumber)) {
       this.displayMessage('registration.invalid-phone-number');
-      return;
     } else {
       return true;
     }
@@ -145,7 +117,7 @@ export class RegistrationPage implements OnInit {
     if (!this.isNumeric(phoneNumber)) {
       return;
     }
-    if (phoneNumber.length < 8 && phoneNumber.length > 12) {
+    if (phoneNumber.length < 8 || phoneNumber.length > 12) {
       return;
     }
     return true;
@@ -162,24 +134,46 @@ export class RegistrationPage implements OnInit {
       details.role = regType;
     } else if (regType === RegistrationType.CUSTOMER) {
       details = this.customerRegistrationDetails;
-      // FIXME this casting is important
       details.professionId = +details.professionId;
       details.role = regType;
+      // get users actual position
+      this.getAndSetLocation(details);
     }
-    this.registerService.register(details).subscribe((status: any) => {
-      if (status === RESOURCE_CREATED) {
-        // success
-        this.navCtrl.navigateBack('/');
-      } else {
-        console.error('Something went wrong, response is ' + status);
-      }
-    }, (err: HttpErrorResponse) => {
-      if (err.error.status === UNAUTHORIZED) {
-        this.displayMessage(err.error.message);
-      } else {
-        console.error(err);
+    this.registerService.register(details).subscribe({
+      next: (status: any) => {
+        if (status === RESOURCE_CREATED) {
+          // success
+          this.navCtrl.navigateBack('/');
+        } else {
+          console.error('Something went wrong, response is ' + status);
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        if (err.error.status === UNAUTHORIZED) {
+          this.displayMessage(err.error.message);
+        } else {
+          console.error(err);
+        }
       }
     });
+  }
+
+  // FIXME not works always
+  private getAndSetLocation(customerRegDetails: CustomerRegistrationDetails) {
+    if (navigator.geolocation) {
+      return navigator.geolocation.getCurrentPosition((position) => {
+        const userPosition: Position = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: new Date()
+        };
+        customerRegDetails.position = userPosition;
+        // TODO refactor
+        // return userPosition;
+      });
+    } else {
+      console.error('Geolocation is not supported');
+    }
   }
 
   handleRegistrationTypeChange() {

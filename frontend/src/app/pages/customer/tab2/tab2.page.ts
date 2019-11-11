@@ -1,10 +1,10 @@
-import { Component, OnInit, AfterContentInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Map, tileLayer, marker, icon, LatLngExpression, Marker, LocationEvent, LatLng } from 'leaflet';
-import { UserService } from 'src/app/services/user.service';
 import { Position, LoggedInUser } from 'src/app/models/interfaces';
 import { AuthService } from 'src/app/services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Status } from 'src/app/models/enums';
+import { CustomerService } from 'src/app/services/customer.service';
 
 
 // layer
@@ -22,7 +22,7 @@ const markers: Marker[] = [];
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss']
 })
-export class Tab2Page implements OnInit, AfterContentInit {
+export class Tab2Page implements OnInit {
 
   // auth user
   customer: LoggedInUser;
@@ -38,15 +38,15 @@ export class Tab2Page implements OnInit, AfterContentInit {
 
   constructor(
     private authService: AuthService,
-    private userService: UserService,
+    private customerService: CustomerService,
     private translateService: TranslateService
   ) { }
 
   ngOnInit() {
-    // TODO: Ez jól működik böngészőből de készülékről nem autentikál login adatok nélkül
+    // TODO: getAuth function (without params) works properly in browser but something is wrong with it on device
     // this.authService.getAuth().subscribe(loggedInUser => {
     const user = this.authService.getCurrentUser();
-    this.userService.getCustomerByUserId(+user.id).subscribe(loggedInUser => {
+    this.customerService.getCustomerByUserId(+user.id).subscribe(loggedInUser => {
       this.customer = loggedInUser;
       this.setButtonColor(this.customer.status);
       if (this.customer.availableFrom) {
@@ -92,7 +92,9 @@ export class Tab2Page implements OnInit, AfterContentInit {
           timestamp: new Date()
         };
         if (this.customer && userPosition) {
-          this.userService.updateCustomerPosition(this.customer.id, JSON.stringify(userPosition)).subscribe(() => {
+          this.customerService.updateCustomerPosition(
+            this.customer.id, JSON.stringify(userPosition)).subscribe(
+              () => {
             console.log('position updated');
           });
         }
@@ -104,20 +106,20 @@ export class Tab2Page implements OnInit, AfterContentInit {
 
   // TODO FIX
   relocate = () => {
-    this.userService.getCustomerByUserId(this.customer.user.id).subscribe(cstmr => {
+    this.customerService.getCustomerByUserId(this.customer.user.id).subscribe(cstmr => {
       if (cstmr.position && typeof cstmr.position === 'string') {
         const pos: Position = JSON.parse(cstmr.position);
         map.flyTo(new LatLng(pos.latitude, pos.longitude), 16);
       }
     });
-  //   console.log('hellO');
-  //   if (navigator.geolocation) {
-  //   console.log('van geo');
-  //   navigator.geolocation.getCurrentPosition(position => {
-  //     console.log('juhe');
-  //     map.flyTo(new LatLng(position.coords.latitude, position.coords.longitude));
-  //   });
-  // }
+    //   console.log('hellO');
+    //   if (navigator.geolocation) {
+    //   console.log('van geo');
+    //   navigator.geolocation.getCurrentPosition(position => {
+    //     console.log('juhe');
+    //     map.flyTo(new LatLng(position.coords.latitude, position.coords.longitude));
+    //   });
+    // }
   }
 
   onLocationFound = (location: LocationEvent) => {
@@ -172,7 +174,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
     if (status === Status.NOT_AVAILABLE) {
       this.displayDateSelector();
     }
-    this.userService.updateCustomerStatus(customerId, status).subscribe((res) => {
+    this.customerService.updateCustomerStatus(customerId, status).subscribe((res) => {
       console.log('Status updated. status: ' + res);
       this.setButtonColor(status);
     }, (error: any) => {
@@ -201,7 +203,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
 
   onDateChange = (customerId: number, dateStr: any) => {
     const date = new Date(dateStr);
-    this.userService.updateCustomerAvailableDate(customerId, date).subscribe(res => {
+    this.customerService.updateCustomerAvailableDate(customerId, date).subscribe(res => {
       console.log('date updated. status: ' + date);
       this.handleCountDownTimer(date.getTime());
     }, (error: any) => {
@@ -236,17 +238,11 @@ export class Tab2Page implements OnInit, AfterContentInit {
       if (distance <= 0) {
         clearInterval(this.timer);
         this.setButtonColor(Status.AVAILABLE);
-        this.userService.updateCustomerStatus(this.customer.id, Status.AVAILABLE).subscribe(() => {
+        this.customerService.updateCustomerStatus(this.customer.id, Status.AVAILABLE).subscribe(() => {
+          console.log('status updated');
         });
       }
     }, 1000);
-  }
-
-  // Should I use these calls here?
-  ngAfterContentInit() {
-    //   map.locate({ setView: true, maxZoom: 16, timeout: 10000, watch: true });
-    //   map.on('locationfound', this.onLocationFound);
-    //   map.on('locationerror', this.onLocationError);
   }
 
   dateFormatter(moment: Date) {

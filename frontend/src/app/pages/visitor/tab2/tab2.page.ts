@@ -6,8 +6,11 @@ import { Position, Profession } from 'src/app/models/interfaces';
 import { AuthService } from 'src/app/services/auth.service';
 import { Status } from 'src/app/models/enums';
 import { NavController } from '@ionic/angular';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { ProfessionService } from 'src/app/services/profession.service';
+import { User } from 'src/app/models/user';
+import { CustomerService } from 'src/app/services/customer.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 // tiles:
 const Original = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -44,12 +47,14 @@ const customerMarkers: Marker[] = [];
 })
 export class Tab2Page implements OnInit, AfterContentInit {
 
+  currentUser: User;
   currentLocation: Position;
   professions: Profession[] = [];
 
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private customerService: CustomerService,
     private professionService: ProfessionService,
     private navCtrl: NavController,
     private route: ActivatedRoute
@@ -60,12 +65,21 @@ export class Tab2Page implements OnInit, AfterContentInit {
   ngOnInit() {
     // auth user
     const user = this.authService.getCurrentUser();
-    this.userService.getUserById(+user.id).subscribe(usr => {
-      console.log(usr);
-    });
-    // this.authService.getAuth().subscribe(usr => {
-    //   // TODO ?
-    // });
+    const userId = +user.id;
+    if (userId !== 0) {
+      this.userService.getUserById(userId).subscribe({
+        next: (usr: User) => {
+          console.log(usr);
+          this.currentUser = usr;
+        },
+        error: (err: any) => {
+          console.error(err.message);
+        }
+      });
+    } else {
+      // TODO
+      // if userId equals 0 then user is not a logged in user but a visitor
+    }
     this.professionService.getAllProfessions().then((professions: Profession[]) => {
       this.professions = professions;
     });
@@ -152,7 +166,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
             <b> ${customer.firstName + ' ' + customer.lastName}</b>
             </div>
             <!-- ${customer.professionId} -->
-            ${this.professionFilter(this.professions, customer.professionId)[0].name}
+            ${this.getProfessionFromArrayById(this.professions, customer.professionId)[0].name}
             <br>
             <p>Phone number: <span><b>${customer.phoneNumber}</b></span></p>
             ${customer.status === Status.NOT_AVAILABLE && customer.availableFrom
@@ -164,7 +178,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
     }
   }
 
-  private professionFilter = (professions: Profession[], professionId: number) => {
+  private getProfessionFromArrayById = (professions: Profession[], professionId: number) => {
     if (professions.length > 0) {
       return professions.filter((profession: Profession) => {
         return profession.id === professionId;
@@ -192,34 +206,55 @@ export class Tab2Page implements OnInit, AfterContentInit {
     customerMarkers.map((singleMarker: Marker) => {
       map.removeLayer(singleMarker);
     });
-    this.route.queryParams.subscribe(params => {
-      const professionId = params.professionId;
-      if (professionId) {
-        this.userService.getCustomersByProfession(professionId).subscribe((customersArray: Customer[]) => {
-          customersArray.map((customer: Customer) => {
-            // 'position' data member comes from the database as a string
-            if (typeof customer.position === 'string') {
-              const position: Position = JSON.parse(customer.position);
-              // rewrite 'position' data member with its parsed value
-              customer.position = position;
+    // if there is a selected profession (in search)
+    // then get only customers by profession
+    this.route.queryParams.subscribe({
+      next: (params: Params) => {
+        const professionId = params.professionId;
+        if (professionId) {
+          this.customerService.getCustomersByProfession(professionId).subscribe({
+            next: (customersArray: Customer[]) => {
+              customersArray.map((customer: Customer) => {
+                // rewrite 'position' data member with its parsed value
+                customer.position = this.parseCustomerPositionToJSON(customer.position);
+                this.addLocationIconToMap(customer);
+              });
+            },
+            error: (err: HttpErrorResponse) => {
+              console.error(err.message);
             }
-            this.addLocationIconToMap(customer);
           });
-        });
-      } else {
-        this.userService.getCustomers().subscribe((customersArray: Customer[]) => {
-          customersArray.map((customer: Customer) => {
-            // 'position' data member comes from the database as a string
-            if (typeof customer.position === 'string') {
-              const position: Position = JSON.parse(customer.position);
-              // rewrite 'position' data member with its parsed value
-              customer.position = position;
+        } else {
+          this.customerService.getCustomers().subscribe({
+            next: (customersArray: Customer[]) => {
+              customersArray.map((customer: Customer) => {
+                // rewrite 'position' data member with its parsed value
+                customer.position = this.parseCustomerPositionToJSON(customer.position);
+                this.addLocationIconToMap(customer);
+              });
+            },
+            error: (err: HttpErrorResponse) => {
+              console.error(err.message);
             }
-            this.addLocationIconToMap(customer);
           });
-        });
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error(err.message);
+      },
+      complete: () => {
+        // complete
+        console.log('Subscribe completed');
       }
     });
+  }
+
+  parseCustomerPositionToJSON(customerPosition: string | Position) {
+    // 'position' data member comes from the database as a string
+    if (typeof customerPosition === 'string') {
+      const position: Position = JSON.parse(customerPosition);
+      return position;
+    }
   }
 
   addLocationIconToMap = (customer: Customer) => {
