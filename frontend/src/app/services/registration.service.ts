@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { RegistrationDetails } from '../models/login-details';
 import { Observable } from 'rxjs';
+import { RegistrationDetails } from '../models/registration-details';
 import { CustomerRegistrationDetails } from '../models/customer-registration-details';
 import { HttpClient } from '@angular/common/http';
 import { URL_PREFIX } from 'src/environments/environment';
