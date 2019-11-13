@@ -48,17 +48,16 @@ export class Tab2Page implements OnInit {
     const user = this.authService.getCurrentUser();
     this.customerService.getCustomerByUserId(+user.id).subscribe(loggedInUser => {
       this.customer = loggedInUser;
+      // update 'position' in the DB every time when it changes
+      this.updateLocation(this.customer);
       this.setButtonColor(this.customer.status);
+      // set text in marker after click
+      this.addCustomerMarkerText();
       if (this.customer.availableFrom) {
-        console.log('if customer availablefrom -> ' + this.customer.availableFrom);
         this.selectedDate = this.dateFormatter(new Date(this.customer.availableFrom));
         this.handleCountDownTimer(this.customer.availableFrom);
       }
     });
-    // set text in marker after click
-    this.addCustomerMarkerText();
-    // update 'position' in the DB every time when it changes
-    this.updateLocation();
     // currently the map's starting postion points to Budapest, Hungary
     map = new Map('map_expert').setView(COORDINATES_OF_BUDAPEST, DEFAULT_ZOOM_LEVEL);
     tileLayer(MAP_TILE_LAYER, {
@@ -74,6 +73,27 @@ export class Tab2Page implements OnInit {
     map.on('locationerror', this.onLocationError);
   }
 
+  private updateLocation = (customer: LoggedInUser) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition((position) => {
+        const userPosition: Position = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: new Date()
+        };
+        if (customer && userPosition) {
+          this.customerService.updateCustomerPosition(
+            customer.id, JSON.stringify(userPosition)).subscribe(
+              () => {
+                console.log('position updated');
+              });
+        }
+      }, (err: PositionError) => {
+        console.error(err);
+      });
+    }
+  }
+
   private addCustomerMarkerText() {
     this.translateService.get('marker.hereyouare').subscribe(
       (markerText: string) => {
@@ -82,44 +102,17 @@ export class Tab2Page implements OnInit {
     );
   }
 
-  updateLocation = () => {
-    // TODO refactor / rethink
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition((position) => {
-        const userPosition: Position = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timestamp: new Date()
-        };
-        if (this.customer && userPosition) {
-          this.customerService.updateCustomerPosition(
-            this.customer.id, JSON.stringify(userPosition)).subscribe(
-              () => {
-            console.log('position updated');
-          });
-        }
-      }, (err: PositionError) => {
-        console.error(err);
-      });
-    }
-  }
-
-  // TODO FIX
   relocate = () => {
-    this.customerService.getCustomerByUserId(this.customer.user.id).subscribe(cstmr => {
-      if (cstmr.position && typeof cstmr.position === 'string') {
-        const pos: Position = JSON.parse(cstmr.position);
-        map.flyTo(new LatLng(pos.latitude, pos.longitude), 16);
+    this.customerService.getCustomerByUserId(this.customer.user.id).subscribe({
+      next: (cstmr: any) => {
+        if (cstmr.position && typeof cstmr.position === 'string') {
+          const pos: Position = JSON.parse(cstmr.position);
+          map.flyTo(new LatLng(pos.latitude, pos.longitude), 16);
+        }
+      }, error: (err: Error) => {
+        console.error(err.message);
       }
     });
-    //   console.log('hellO');
-    //   if (navigator.geolocation) {
-    //   console.log('van geo');
-    //   navigator.geolocation.getCurrentPosition(position => {
-    //     console.log('juhe');
-    //     map.flyTo(new LatLng(position.coords.latitude, position.coords.longitude));
-    //   });
-    // }
   }
 
   onLocationFound = (location: LocationEvent) => {
@@ -168,27 +161,29 @@ export class Tab2Page implements OnInit {
 
 
   onStatusChange = (customerId: number, status: number) => {
+    console.log(status);
     if (status === Status.AVAILABLE) {
       clearInterval(this.timer);
     }
     if (status === Status.NOT_AVAILABLE) {
       this.displayDateSelector();
     }
-    this.customerService.updateCustomerStatus(customerId, status).subscribe((res) => {
-      console.log('Status updated. status: ' + res);
-      this.setButtonColor(status);
-    }, (error: any) => {
-      console.error(error);
+    this.customerService.updateCustomerStatus(customerId, status).subscribe({
+      next: (res: any) => {
+        console.log('Status updated');
+        this.setButtonColor(status);
+      }, error: (err: Error) => {
+        console.error(err.message);
+      }
     });
   }
 
-  displayDateSelector() {
+  private displayDateSelector() {
     const selector = document.getElementById('date-selector');
     selector.click();
   }
 
-  setButtonColor = (status: number) => {
-    console.log('status: ' + status);
+  private setButtonColor = (status: number) => {
     switch (status) {
       case 0:
         this.availableButtonColor = 'success';
@@ -203,11 +198,13 @@ export class Tab2Page implements OnInit {
 
   onDateChange = (customerId: number, dateStr: any) => {
     const date = new Date(dateStr);
-    this.customerService.updateCustomerAvailableDate(customerId, date).subscribe(res => {
-      console.log('date updated. status: ' + date);
-      this.handleCountDownTimer(date.getTime());
-    }, (error: any) => {
-      console.error(error);
+    this.customerService.updateCustomerAvailableDate(customerId, date).subscribe({
+      next: () => {
+        console.log('date updated: ' + date);
+        this.handleCountDownTimer(date.getTime());
+      }, error: (err: Error) => {
+        console.error(err.message);
+      }
     });
   }
 
@@ -245,7 +242,7 @@ export class Tab2Page implements OnInit {
     }, 1000);
   }
 
-  dateFormatter(moment: Date) {
+  private dateFormatter(moment: Date) {
     return new Date(moment).toISOString();
   }
 }

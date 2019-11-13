@@ -63,11 +63,8 @@ export class LoginPage implements OnInit {
         console.log(user);
         // set user into localStorage
         this.authService.setCurrentUser(user);
-        if (user.authorities && user.authorities[0] === Role.VISITOR) {
-          this.navCtrl.navigateForward('/visitor/tabs/tab2');
-        } else if (!user.authorities && user.user) {
-          this.navCtrl.navigateForward('/customer/tabs/tab2');
-        }
+        // navigate to user's oe customer's page
+        this.navigateForward(user);
       },
       error: (err: HttpErrorResponse) => {
         this.displayMessage('');
@@ -80,6 +77,22 @@ export class LoginPage implements OnInit {
         }
       }
     });
+  }
+
+  private navigateForward(user: LoggedInUser) {
+    this.navCtrl.navigateForward(`/${this.getUrlPrefixByRole(user)}/tabs/tab2`);
+  }
+
+  private getUrlPrefixByRole(user: LoggedInUser) {
+    if (user.authorities && user.authorities[0] === Role.VISITOR) {
+      return this.getAuthorityString(user.authorities[0]);
+    } else if (!user.authorities && user.user && user.user.authorities[0] === Role.CUSTOMER) {
+      return this.getAuthorityString(user.user.authorities[0]);
+    }
+  }
+
+  private getAuthorityString(authority: string) {
+    return authority.split('_')[1].toLowerCase();
   }
 
   // TODO TEMP
