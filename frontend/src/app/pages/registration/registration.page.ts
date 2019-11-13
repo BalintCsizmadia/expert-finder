@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { RegistrationDetails } from 'src/app/models/login-details';
 import { RegistrationService } from 'src/app/services/registration.service';
+import { RegistrationDetails } from 'src/app/models/registration-details';
 import { CustomerRegistrationDetails } from 'src/app/models/customer-registration-details';
 import { Position, Profession } from 'src/app/models/interfaces';
 import { ProfessionService } from 'src/app/services/profession.service';
@@ -63,9 +63,13 @@ export class RegistrationPage implements OnInit {
       this.displayMessage('registration.missing-email');
     } else if (!details.password) {
       this.displayMessage('registration.missing-password');
+    } else if (!details.confirmationPassword) {
+      this.displayMessage('registration.missing-confirmation-password');
     } else if (!this.isValidPassword(details.password)) {
       this.displayMessage('registration.short-password');
       this.registrationDetails.password = '';
+    } else if (!this.isPasswordsMatch(details)) {
+      this.displayMessage('registration.unmatched-passwords');
     } else {
       return true;
     }
@@ -82,6 +86,8 @@ export class RegistrationPage implements OnInit {
     } else if (!this.isValidPassword(details.password)) {
       this.displayMessage('registration.short-password');
       this.customerRegistrationDetails.password = '';
+    } else if (!this.isPasswordsMatch(details)) {
+      this.displayMessage('registration.unmatched-passwords');
     } else if (!details.firstName) {
       this.displayMessage('registration.missing-first-name');
     } else if (!details.lastName) {
@@ -111,6 +117,10 @@ export class RegistrationPage implements OnInit {
   // basic check
   private isValidPassword(password: string) {
     return password.length >= 5 ? true : false;
+  }
+
+  private isPasswordsMatch(details: RegistrationDetails | CustomerRegistrationDetails) {
+    return details.password === details.confirmationPassword ? true : false;
   }
 
   private isValidPhoneNumber(phoneNumber: string): boolean {

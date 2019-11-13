@@ -4,6 +4,7 @@ export class CustomerRegistrationDetails {
     // tslint:disable:variable-name
     private _username: string;
     private _password: string;
+    private _confirmationPassword: string;
     private _role: number;
     private _firstName: string;
     private _lastName: string;
@@ -33,6 +34,14 @@ export class CustomerRegistrationDetails {
 
     public set password(password: string) {
         this._password = password.trim().replace(/\s+/g, '');
+    }
+
+    public get confirmationPassword(): string {
+        return this._confirmationPassword;
+    }
+
+    public set confirmationPassword(confirmationPassword: string) {
+        this._confirmationPassword = confirmationPassword.trim().replace(/\s+/g, '');
     }
 
     public get firstName(): string {
@@ -79,5 +88,4 @@ export class CustomerRegistrationDetails {
         if (typeof s !== 'string') { return ''; }
         return s.charAt(0).toUpperCase() + s.slice(1);
     }
-
 }
