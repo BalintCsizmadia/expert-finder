@@ -17,6 +17,12 @@ export class CustomerService {
     return this.http.get<Customer[]>(`${URL_PREFIX}/customers`);
   }
 
+  // TODO implement
+  getActiveCustomers(): Observable<Customer[]> {
+    // get available customers
+    return null;
+  }
+
   getCustomerByUserId(userId: number): Observable<LoggedInUser> {
     return this.http.get<LoggedInUser>(`${URL_PREFIX}/customers/${userId}`);
   }
@@ -38,7 +44,6 @@ export class CustomerService {
     return this.http.put<number>(`${URL_PREFIX}/customers/${id}/position`, { position: currentPosition });
   }
 
-  // TODO type fix
   getCustomersByProfession(selectedProfession: string): Observable<any> {
     return this.http.post<any>(`${URL_PREFIX}/customers/profession`, { profession: selectedProfession });
   }
