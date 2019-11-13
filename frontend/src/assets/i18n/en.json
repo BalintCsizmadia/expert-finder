@@ -17,6 +17,7 @@
         "profession": "Profession",
         "all-empty": "Please fill out all the given fields",
         "missing-email": "Email address is missing",
+        "invalid-email-format": "Invalid email format",
         "missing-password": "Password is missing",
         "missing-confirmation-password": "Confirmation password is missing",
         "unmatched-passwords": "Passwords do not match",
