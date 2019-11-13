@@ -7,6 +7,7 @@ import { CustomerRegistrationDetails } from 'src/app/models/customer-registratio
 import { Position, Profession } from 'src/app/models/interfaces';
 import { ProfessionService } from 'src/app/services/profession.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { emailRegex } from 'src/assets/regex';
 
 // status codes
 const RESOURCE_CREATED = 201;
@@ -61,6 +62,8 @@ export class RegistrationPage implements OnInit {
       this.displayMessage('registration.all-empty');
     } else if (!details.username) {
       this.displayMessage('registration.missing-email');
+    } else if (!this.isValidEmailFormat(details.username)) {
+      this.displayMessage('registration.invalid-email-format');
     } else if (!details.password) {
       this.displayMessage('registration.missing-password');
     } else if (!details.confirmationPassword) {
@@ -81,6 +84,8 @@ export class RegistrationPage implements OnInit {
       this.displayMessage('registration.all-empty');
     } else if (!details.username) {
       this.displayMessage('registration.missing-email');
+    } else if (!this.isValidEmailFormat(details.username)) {
+      this.displayMessage('registration.invalid-email-format');
     } else if (!details.password) {
       this.displayMessage('registration.missing-password');
     } else if (!this.isValidPassword(details.password)) {
@@ -112,6 +117,10 @@ export class RegistrationPage implements OnInit {
     } catch (err) {
       console.error('Translation error: ' + err.message);
     }
+  }
+
+  private isValidEmailFormat(email: string) {
+    return emailRegex.test(email) ? true : false;
   }
 
   // basic check
