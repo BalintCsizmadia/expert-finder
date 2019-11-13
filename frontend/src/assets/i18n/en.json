@@ -9,6 +9,8 @@
     "registration": {
         "title": "Registration",
         "registration-text": "Sign up",
+        "password": "Password",
+        "confirmation-password": "Confirmation password",
         "first-name": "First name",
         "last-name": "Last name",
         "phone-number": "Phone number",
@@ -16,6 +18,8 @@
         "all-empty": "Please fill out all the given fields",
         "missing-email": "Email address is missing",
         "missing-password": "Password is missing",
+        "missing-confirmation-password": "Confirmation password is missing",
+        "unmatched-passwords": "Passwords do not match",
         "short-password": "5 characters minimum",
         "already-in-use": "This email address is already in use",
         "missing-first-name": "Missing first name",

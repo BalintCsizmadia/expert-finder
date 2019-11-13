@@ -9,6 +9,8 @@
     "registration": {
         "title": "Regisztráció",
         "registration-text": "Regisztráció",
+        "password": "Jelszó",
+        "confirmation-password": "Jelszó megerősítése",
         "first-name": "Keresztnév",
         "last-name": "Vezetéknév",
         "phone-number": "Telefonszán",
@@ -16,6 +18,8 @@
         "all-empty": "Kérjük töltse ki a megadott mezőket",
         "missing-email": "Kérjük adjon meg egy email címet",
         "missing-password": "Kérjük adjon meg egy jelszót",
+        "missing-confirmation-password": "Kérjük erősítse meg jelszavát",
+        "unmatched-passwords": "A jelszó és a megerősítő jelszó nem egyezik",
         "short-password": "Minimum 5 karakter",
         "already-in-use": "Ez az email cím már használatban van. Kérjük válasszon másikat",
         "missing-first-name": "Kérjük adja meg a keresztnevét",
