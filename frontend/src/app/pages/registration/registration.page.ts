@@ -108,9 +108,9 @@ export class RegistrationPage implements OnInit {
     }
   }
 
-  private displayMessage(message: string) {
+  private displayMessage(messageSource: string) {
     try {
-      this.translateService.get(message).subscribe(
+      this.translateService.get(messageSource).subscribe(
         (translatedMessage: string) => {
           this.message = translatedMessage;
         });
@@ -132,7 +132,7 @@ export class RegistrationPage implements OnInit {
     return details.password === details.confirmationPassword ? true : false;
   }
 
-  private isValidPhoneNumber(phoneNumber: string): boolean {
+  private isValidPhoneNumber(phoneNumber: string) {
     if (!this.isNumeric(phoneNumber)) {
       return;
     }
@@ -146,7 +146,7 @@ export class RegistrationPage implements OnInit {
     return !isNaN(num);
   }
 
-  private handleRegistration(regType: RegistrationType) {
+  private async handleRegistration(regType: RegistrationType) {
     let details: RegistrationDetails | CustomerRegistrationDetails;
     if (regType === RegistrationType.VISITOR) {
       details = this.registrationDetails;
@@ -156,7 +156,7 @@ export class RegistrationPage implements OnInit {
       details.professionId = +details.professionId;
       details.role = regType;
       // get users actual position
-      this.getAndSetLocation(details);
+      details.position = this.getFormattedUserPosition(await this.getPositionAsync());
     }
     this.registerService.register(details).subscribe({
       next: (status: any) => {
@@ -177,22 +177,39 @@ export class RegistrationPage implements OnInit {
     });
   }
 
-  // FIXME not works always
-  private getAndSetLocation(customerRegDetails: CustomerRegistrationDetails) {
-    if (navigator.geolocation) {
-      return navigator.geolocation.getCurrentPosition((position) => {
-        const userPosition: Position = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timestamp: new Date()
-        };
-        customerRegDetails.position = userPosition;
-        // TODO refactor
-        // return userPosition;
-      });
+  /**
+   *
+   * @param position Geolocaton Position
+   * @description convert geolocation Position to user Position
+   * @returns Position /latitude, longitude, timestamp/
+   */
+  private getFormattedUserPosition(position: any) {
+    if (position) {
+      const userPosition: Position = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        timestamp: new Date()
+      };
+      return userPosition;
     } else {
-      console.error('Geolocation is not supported');
+      console.warn('Searching location');
     }
+  }
+
+  private getPositionAsync = async () => {
+    return await this.getPositionPromise()
+      .then(async (position) => {
+        return await position;
+      })
+      .catch((err) => {
+        console.error(err.message);
+      });
+  }
+
+  private getPositionPromise = () => {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
   }
 
   handleRegistrationTypeChange() {
