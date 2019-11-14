@@ -45,9 +45,9 @@ export class LoginPage implements OnInit {
     }
   }
 
-  private displayMessage(message: string) {
+  private displayMessage(messageSource: string) {
     try {
-      this.translateService.get(message).subscribe(
+      this.translateService.get(messageSource).subscribe(
         (translatedMessage: string) => {
           this.message = translatedMessage;
         });
