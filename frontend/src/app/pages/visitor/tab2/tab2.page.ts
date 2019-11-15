@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterContentInit } from '@angular/core';
-import { Map, tileLayer, marker, icon, LatLngExpression, Marker, LocationEvent, LatLng } from 'leaflet';
+import { Map, tileLayer, marker, icon, Marker, LocationEvent, LatLng, LocateOptions, TileLayerOptions, circle } from 'leaflet';
 import { UserService } from 'src/app/services/user.service';
 import { Customer } from 'src/app/models/customer';
 import { Position, Profession } from 'src/app/models/interfaces';
@@ -11,31 +11,16 @@ import { ProfessionService } from 'src/app/services/profession.service';
 import { User } from 'src/app/models/user';
 import { CustomerService } from 'src/app/services/customer.service';
 import { HttpErrorResponse } from '@angular/common/http';
-
-// tiles:
-const Original = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-});
-const OriginalLight = tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution:
-    `&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by
-   <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a>
-    hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>`
-});
-const Wikimedia = tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png', {
-  attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',
-  minZoom: 1,
-  maxZoom: 19
-});
+import { TranslateService } from '@ngx-translate/core';
 
 // layer
 const MAP_TILE_LAYER = 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png';
-const COORDINATES_OF_BUDAPEST: LatLngExpression = [47.498, 19.05];
+const MAP_TILE_ATTRIBUTION = '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>';
+const COORDINATES_OF_BUDAPEST: LatLng = new LatLng(47.498, 19.05);
 const DEFAULT_ZOOM_LEVEL = 12;
 // map
 let map: Map;
-// storage for markers
+// storage for logged in user's marker(s)
 const markers: Marker[] = [];
 // storage for customers' markers
 const customerMarkers: Marker[] = [];
@@ -48,7 +33,7 @@ const customerMarkers: Marker[] = [];
 export class Tab2Page implements OnInit, AfterContentInit {
 
   currentUser: User;
-  currentLocation: Position;
+  currentPosition: Position;
   professions: Profession[] = [];
 
   constructor(
@@ -56,9 +41,11 @@ export class Tab2Page implements OnInit, AfterContentInit {
     private userService: UserService,
     private customerService: CustomerService,
     private professionService: ProfessionService,
+    private translateService: TranslateService,
     private navCtrl: NavController,
     private route: ActivatedRoute
   ) {
+    // display customers on map
     this.addCustomersToMap();
   }
 
@@ -83,13 +70,30 @@ export class Tab2Page implements OnInit, AfterContentInit {
     this.professionService.getAllProfessions().then((professions: Profession[]) => {
       this.professions = professions;
     });
+    // MAP INITIALIZATION
     // currently the map's starting postion points to Budapest, Hungary
     map = new Map('map').setView(COORDINATES_OF_BUDAPEST, DEFAULT_ZOOM_LEVEL);
-    tileLayer(MAP_TILE_LAYER, {
-      attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',
+    const tileLayerOptions: TileLayerOptions = {
+      attribution: MAP_TILE_ATTRIBUTION,
       minZoom: 1,
       maxZoom: 19
-    }).addTo(map);
+    };
+    tileLayer(MAP_TILE_LAYER, tileLayerOptions)
+      .addTo(map);
+
+    const locateOptions: LocateOptions = {
+      // If true, starts continuous watching of location changes (instead of detecting it once)
+      watch: true,
+      // if true, reset location completely if position changes (e.g. zoom again)
+      setView: false,
+      maxZoom: 16,
+      timeout: 10000
+    };
+    // using W3C watchPosition method. You can later stop watching using map.stopLocate() method.
+    map.locate(locateOptions);
+    map.on('locationfound', this.onLocationFound);
+    map.on('locationerror', this.onLocationError);
+
     // when user comes from 'tab1' - search page
     this.route.queryParams.subscribe(params => {
       const professionId = params.professionId;
@@ -99,17 +103,8 @@ export class Tab2Page implements OnInit, AfterContentInit {
     });
     // TODO TEMP SOLUTION for getting data from db in every minutes
     setInterval(() => {
-      // displays customers on map
       this.addCustomersToMap();
     }, 60000);
-    // watch:
-    // If true, starts continuous watching of location changes (instead of detecting it once)
-    // using W3C watchPosition method. You can later stop watching using map.stopLocate() method.
-    // setView:
-    // if true, reset location completely if position changes (e.g. zoom again)
-    map.locate({ setView: false, maxZoom: 16, timeout: 10000, watch: true });
-    map.on('locationfound', this.onLocationFound);
-    map.on('locationerror', this.onLocationError);
   }
 
   onLocationFound = (location: LocationEvent) => {
@@ -129,52 +124,101 @@ export class Tab2Page implements OnInit, AfterContentInit {
     })
       .addTo(map)
       .on('click', () => {
-        this.onLocationClick(myMarker, location.latlng.lat, location.latlng.lng);
+        this.onLocationClick(myMarker, location.latlng);
       });
     markers.push(myMarker);
     // TODO use it or not?
-    // L.circle(locationEvent.latlng, locationEvent.accuracy, { opacity: 0.4, fillOpacity: 0.1 }).addTo(map);
+    // circle(location.latlng, location.accuracy, { opacity: 0.4, fillOpacity: 0.1 }).addTo(map);
     // uses for relocation
-    this.currentLocation = this.getCurrentUserPosition(location);
+    this.currentPosition = this.getCurrentUserPosition(location);
   }
 
-  getCurrentUserPosition = (location: LocationEvent) => {
+  private getCurrentUserPosition = (location: LocationEvent) => {
     return { latitude: location.latlng.lat, longitude: location.latlng.lng, timestamp: new Date() };
   }
 
-  onLocationClick(myMarker: Marker, latitude: number, longitude: number, customer?: Customer) {
+  onLocationClick(myMarker: Marker, latlng: LatLng, customer?: Customer) {
     if (myMarker) {
       myMarker.off('click');
       // zoom
       myMarker.on('click', () => {
-        // latitude, longitude, zoomLevel
-        map.setView([latitude, longitude], 17);
+        map.setView(latlng, 17);
       });
       if (!customer) {
         myMarker
-          .bindPopup(`<b>${'name'}</b><br>Your position`)
+          // .bindPopup(`<b>${'name'}</b><br>Your position`)
+          .bindPopup(this.buildHTMLPopupForVisitor())
           .openPopup();
       } else {
         myMarker
-          .bindPopup(
-            `<div>
-            <img id="status-img"
-             src="assets/icon/${customer.status === Status.AVAILABLE ? 'online' : 'offline'}.png"
-             width="10px"
-             height="10px"
-            ></img>
-            <b> ${customer.firstName + ' ' + customer.lastName}</b>
-            </div>
-            <!-- ${customer.professionId} -->
-            ${this.getProfessionFromArrayById(this.professions, customer.professionId)[0].name}
-            <br>
-            <p>Phone number: <span><b>${customer.phoneNumber}</b></span></p>
-            ${customer.status === Status.NOT_AVAILABLE && customer.availableFrom
-              ? '<p>Available from: ' + '<span>' + this.getFormattedDate(new Date(customer.availableFrom)) + '</span></p>'
-              : ''
-            }`)
+          .bindPopup(this.buildHTMLPopupForCustomer(customer))
           .openPopup();
       }
+    }
+  }
+
+  private buildHTMLPopupForVisitor() {
+    const mainDivEl = document.createElement('div');
+    const bTextEl = document.createElement('b');
+    this.addTextToHTMLElement(bTextEl, 'popup.your-position');
+    mainDivEl.appendChild(bTextEl);
+    return mainDivEl;
+  }
+
+  private buildHTMLPopupForCustomer(customer: Customer) {
+    const mainDivEl = document.createElement('div');
+    const topDivEl = document.createElement('div');
+    const statusImgEl = document.createElement('img');
+    statusImgEl.id = 'status-img';
+    statusImgEl.width = 10;
+    statusImgEl.height = 10;
+    statusImgEl.src = `assets/icon/${customer.status === Status.AVAILABLE ? 'online' : 'offline'}.png`;
+    const nameBtextEl = document.createElement('b');
+    nameBtextEl.textContent = ` ${customer.firstName + ' ' + customer.lastName}`;
+    const professionPtextEl = document.createElement('p');
+    professionPtextEl.style.margin = '0';
+    professionPtextEl.textContent = `${this.getProfessionFromArrayById(this.professions, customer.professionId)[0].name}`;
+    const phonePtextEl = document.createElement('p');
+    this.addTextToHTMLElement(phonePtextEl, 'popup.phone');
+    const phoneSpanEl = document.createElement('span');
+    const phoneBtextEl = document.createElement('b');
+    phoneBtextEl.textContent = customer.phoneNumber;
+    phoneSpanEl.appendChild(phoneBtextEl);
+    phonePtextEl.appendChild(phoneSpanEl);
+    // topDivEl -> status icon + name + profession
+    topDivEl.appendChild(statusImgEl);
+    topDivEl.appendChild(nameBtextEl);
+    topDivEl.appendChild(professionPtextEl);
+    mainDivEl.appendChild(topDivEl);
+    // mainDivEl -> phone number + avaiable from date
+    mainDivEl.appendChild(phonePtextEl);
+    if (customer.status === Status.NOT_AVAILABLE && customer.availableFrom) {
+      const availablePtextEl = document.createElement('p');
+      this.addTextToHTMLElement(availablePtextEl, 'popup.available-from');
+      const availableSpanEl = document.createElement('span');
+      availableSpanEl.textContent = this.getFormattedDate(new Date(customer.availableFrom));
+      availablePtextEl.appendChild(availableSpanEl);
+      mainDivEl.appendChild(availablePtextEl);
+    }
+    return mainDivEl;
+  }
+
+  /**
+   *
+   * @param htmlElement HTMLElement
+   * @param i18nTextSource string
+   * @description get text content via i18n's translateService and
+   * attach to the html element
+   */
+  private addTextToHTMLElement(htmlElement: HTMLElement, i18nTextSource: string) {
+    try {
+      this.translateService.get(i18nTextSource).subscribe(
+        (translatedText: string) => {
+          htmlElement.textContent = translatedText;
+        }
+      );
+    } catch (err) {
+      console.error('Translation error: ' + err.message);
     }
   }
 
@@ -186,6 +230,12 @@ export class Tab2Page implements OnInit, AfterContentInit {
     }
   }
 
+  /**
+   *
+   * @param dt Date
+   * @description convert Date to a formatted string -> output format: yyyy-mm-dd HH:mm
+   * @returns string
+   */
   private getFormattedDate(dt: Date) {
     return `${
       dt.getFullYear().toString().padStart(4, '0')}-${
@@ -260,8 +310,8 @@ export class Tab2Page implements OnInit, AfterContentInit {
   addLocationIconToMap = (customer: Customer) => {
     const customerStatus = customer.status;
     if (typeof customer.position !== 'string' && customer.position.latitude && customer.position.longitude) {
-      const coordinates: LatLngExpression = [customer.position.latitude, customer.position.longitude];
-      const mrkr = marker(coordinates, {
+      const latlng: LatLng = new LatLng(customer.position.latitude, customer.position.longitude);
+      const mrkr = marker(latlng, {
         icon: icon({
           iconSize: [31, 31],
           iconAnchor: [13, 41],
@@ -269,13 +319,14 @@ export class Tab2Page implements OnInit, AfterContentInit {
           iconUrl: customerStatus === Status.AVAILABLE ? 'assets/icon/available.png' : 'assets/icon/unavailable.png',
         }),
         opacity: customerStatus === Status.AVAILABLE ? 1 : 0.8
-      }).addTo(map).on('click', () => {
-        this.onLocationClick(mrkr, coordinates[0], coordinates[1], customer);
-      });
+      })
+        .addTo(map)
+        .on('click', () => {
+          this.onLocationClick(mrkr, latlng, customer);
+        });
       // store markers
       customerMarkers.push(mrkr);
     } else {
-      // TODO error handling
       console.error('"position" data is missing');
     }
   }
@@ -284,15 +335,12 @@ export class Tab2Page implements OnInit, AfterContentInit {
     this.navCtrl.navigateForward('/visitor/tabs/tab1');
   }
 
-  relocate = (currentLocation: Position) => {
-    map.flyTo(new LatLng(currentLocation.latitude, currentLocation.longitude), 16);
+  // TODO check on device
+  relocate = (currentPosition: Position) => {
+    map.flyTo(new LatLng(currentPosition.latitude, currentPosition.longitude), 16);
   }
 
-  // Should I use these calls here?
   ngAfterContentInit() {
-    //   map.locate({ setView: true, maxZoom: 16, timeout: 10000, watch: true });
-    //   map.on('locationfound', this.onLocationFound);
-    //   map.on('locationerror', this.onLocationError);
   }
 
 }
