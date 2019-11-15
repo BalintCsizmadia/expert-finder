@@ -7,5 +7,8 @@
 </ion-header>
 
 <ion-content>
-  <ion-button (click)="logout()">Logout</ion-button>
+ <div id="main-div">
+   <p>{{ user.username }}</p>
+   <ion-button id="logout-btn" (click)="logout()">Logout</ion-button>
+  </div>
 </ion-content>
