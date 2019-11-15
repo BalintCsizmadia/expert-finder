@@ -27,7 +27,6 @@ export class RegistrationService {
         lastName: details.lastName,
         phoneNumber: details.phoneNumber,
         professionId: details.professionId,
-        position: JSON.stringify(details.position)
       });
     } else {
       throw new Error('Something went wrong');

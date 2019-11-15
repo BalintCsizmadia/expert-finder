@@ -26,8 +26,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     @Modifying
     @Transactional
     @Query(value = "INSERT INTO customers " +
-            "(user_id, email, first_name, last_name, phone_number, profession_id, position, registration_date) " +
-            "VALUES (?1, ?2, ?3, ?4, ?5, ?6, CAST(?7 AS json), NOW())",
+            "(user_id, email, first_name, last_name, phone_number, profession_id, registration_date) " +
+            "VALUES (?1, ?2, ?3, ?4, ?5, ?6, NOW())",
             nativeQuery = true)
     int add(
             Integer userId,

@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { RegistrationService } from 'src/app/services/registration.service';
 import { RegistrationDetails } from 'src/app/models/registration-details';
 import { CustomerRegistrationDetails } from 'src/app/models/customer-registration-details';
-import { Position, Profession } from 'src/app/models/interfaces';
+import { Profession } from 'src/app/models/interfaces';
 import { ProfessionService } from 'src/app/services/profession.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { emailRegex } from 'src/assets/regex';
@@ -108,7 +108,7 @@ export class RegistrationPage implements OnInit {
     }
   }
 
-  private displayMessage(messageSource: string) {
+  private displayMessage = (messageSource: string) => {
     try {
       this.translateService.get(messageSource).subscribe(
         (translatedMessage: string) => {
@@ -146,7 +146,7 @@ export class RegistrationPage implements OnInit {
     return !isNaN(num);
   }
 
-  private async handleRegistration(regType: RegistrationType) {
+  private handleRegistration = async (regType: RegistrationType) => {
     let details: RegistrationDetails | CustomerRegistrationDetails;
     if (regType === RegistrationType.VISITOR) {
       details = this.registrationDetails;
@@ -155,8 +155,6 @@ export class RegistrationPage implements OnInit {
       details = this.customerRegistrationDetails;
       details.professionId = +details.professionId;
       details.role = regType;
-      // get users actual position
-      details.position = this.getFormattedUserPosition(await this.getPositionAsync());
     }
     this.registerService.register(details).subscribe({
       next: (status: any) => {
@@ -177,42 +175,7 @@ export class RegistrationPage implements OnInit {
     });
   }
 
-  /**
-   *
-   * @param position Geolocaton Position
-   * @description convert geolocation Position to user Position
-   * @returns Position /latitude, longitude, timestamp/
-   */
-  private getFormattedUserPosition(position: any) {
-    if (position) {
-      const userPosition: Position = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        timestamp: new Date()
-      };
-      return userPosition;
-    } else {
-      console.warn('Searching location');
-    }
-  }
-
-  private getPositionAsync = async () => {
-    return await this.getPositionPromise()
-      .then(async (position) => {
-        return await position;
-      })
-      .catch((err) => {
-        console.error(err.message);
-      });
-  }
-
-  private getPositionPromise = () => {
-    return new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject);
-    });
-  }
-
-  handleRegistrationTypeChange() {
+  handleRegistrationTypeChange = () => {
     // before switching screen - remove error message if there was
     this.displayMessage('clear');
     this.regType === RegistrationType.VISITOR

@@ -9,8 +9,7 @@ export class CustomerRegistrationDetails {
     private _firstName: string;
     private _lastName: string;
     private _phoneNumber: string;
-    private _professionId: any;
-    private _position: Position;
+    private _professionId: number | string;
 
     public get username(): string {
         return this._username;
@@ -68,20 +67,12 @@ export class CustomerRegistrationDetails {
         this._phoneNumber = phoneNumber.trim().replace(/\s+/g, '');
     }
 
-    public get professionId(): any {
+    public get professionId(): number | string {
         return this._professionId;
     }
 
-    public set professionId(professionId: any) {
+    public set professionId(professionId: number | string) {
         this._professionId = professionId;
-    }
-
-    public get position(): Position {
-        return this._position;
-    }
-
-    public set position(postion: Position) {
-        this._position = postion;
     }
 
     private capitalize(s: any) {

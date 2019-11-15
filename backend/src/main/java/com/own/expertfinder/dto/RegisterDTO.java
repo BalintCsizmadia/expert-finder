@@ -10,9 +10,6 @@ public class RegisterDTO {
     private String phoneNumber;
     private Integer professionId;
     // private Boolean isActive;
-    // @Convert(converter = HashMapConverter.class)
-    // private Map<String, Object> position;
-    private String position;
 
     public RegisterDTO() {
     }
@@ -43,9 +40,5 @@ public class RegisterDTO {
 
     public Integer getProfessionId() {
         return professionId;
-    }
-
-    public String getPosition() {
-        return position;
     }
 }

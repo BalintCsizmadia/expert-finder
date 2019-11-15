@@ -84,7 +84,6 @@ public class UserService {
                 customer.setLastName(registrationData.getLastName());
                 customer.setPhoneNumber(registrationData.getPhoneNumber());
                 customer.setProfessionId(registrationData.getProfessionId());
-                customer.setPosition(registrationData.getPosition());
                 customer.setRegistrationDate(new Date());
                 customerRepository.add(
                         customer.getUser().getId(),
