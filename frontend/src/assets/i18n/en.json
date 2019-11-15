@@ -53,5 +53,10 @@
     },
     "search": {
         "filter": "Filter"
+    },
+    "popup": {
+        "your-position": "Your position",
+        "phone": "Phone number: ",
+        "available-from": "Available from: "
     }
 }

@@ -53,5 +53,10 @@
     },
     "search": {
         "filter": "Szűrés"
+    },
+    "popup": {
+        "your-position": "Itt állsz",
+        "phone": "Telefon: ",
+        "available-from": "Elérhető: "
     }
 }
