@@ -85,7 +85,7 @@ public class UserService {
                 customer.setPhoneNumber(registrationData.getPhoneNumber());
                 customer.setProfessionId(registrationData.getProfessionId());
                 customer.setRegistrationDate(new Date());
-                customerRepository.add(
+                customerRepository.save(
                         customer.getUser().getId(),
                         customer.getEmail(),
                         customer.getFirstName(),
@@ -103,107 +103,12 @@ public class UserService {
     }
 
     /**
-     *
      * @param role String (e.g., VISITOR, CUSTOMER)
      * @return String with "ROLE_" prefix
      */
     private String createRoleString(String role) {
         return "ROLE_" + role;
     }
-
-/*
-    @Transactional
-    public User add(String username, String password, String role)
-            throws UserAlreadyExistsException {
-        User user;
-        if (!isUsernameExists(username)) {
-            userDetailsManager.createUser(new org.springframework.security.core.userdetails.User(
-                    username,
-                    passwordEncoder.encode(password),
-                    AuthorityUtils.createAuthorityList("ROLE_" + role)));
-            user = userRepository.findByUsername(username);
-            user.setEnabled(true);
-            user.setAll(user);
-            userRepository.save(user);
-            logger.info(userRepository.findByUsername(username) + " added to database.");
-        } else {
-            logger.info("Repeated registration attempt. User already exists.");
-            throw new UserAlreadyExistsException("Repeated registration attempt. User already exists.");
-        }
-        return user;
-    }
-
-    @Transactional
-    public User add(User user) {
-        List<GrantedAuthority> roles = user.getAuthorities()
-                .stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(
-                user.getUsername(),
-                null,
-                roles);
-
-        SecurityContext sc = SecurityContextHolder.getContext();
-        sc.setAuthentication(auth);
-        return user;
-    }
-
-    private boolean isUsernameExists(String username) {
-        User user = getUserByName(username);
-        return user != null;
-    }
-
-    private User getGoogleAuthenticatedUser(String username, String role) {
-        if (!isUsernameExists(username)) {
-            userDetailsManager.createUser(new org.springframework.security.core.userdetails.User(
-                    username,
-                    "",
-                    AuthorityUtils.createAuthorityList("ROLE_" + role)));
-            logger.info(getUserByName(username) + " added to database.");
-        }
-        return getUserByName(username);
-    }
-
-    public void userDetailsValidator(String username, String name, String email,
-                                     String password, String confirmationPassword, String role,
-                                     String subscription) throws MissingRegistrationInfoException, EmailAlreadyExistsException {
-        SimpleUser simpleUser = simpleUserService.find(email);
-        Company comp = companyService.find(email);
-        if (simpleUser != null || comp != null) {
-            logger.info("Registration attempt with an already used e-mail address");
-            throw new EmailAlreadyExistsException("Registration attempt with an already used e-mail address");
-        }
-        if (role.equals("COMPANY")) {
-            if (name == null || name.equals("")) {
-                throw new MissingRegistrationInfoException();
-            }
-            if (name.length() < 4) {
-                name = name + new Random().nextInt(900) + 100;
-            }
-            if (subscription == null) {
-                throw new MissingRegistrationInfoException();
-            }
-        }
-        if (role.equals("STUDENT") || role.equals("TEACHER")) {
-            if (username == null || username.equals("")) {
-                throw new MissingRegistrationInfoException();
-            }
-            if (username.length() < 4) {
-                username = username + new Random().nextInt(900) + 100;
-            }
-        }
-        if (email == null || email.equals("") || password == null || password.equals("") ||
-                confirmationPassword == null || confirmationPassword.equals("")) {
-            throw new MissingRegistrationInfoException();
-        }
-        if (!password.equals(confirmationPassword)) {
-            throw new IllegalArgumentException("Password does not match the confirm password");
-        }
-    }
-
- */
 
     private enum Role {
         VISITOR(0),

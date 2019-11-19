@@ -1,3 +1,5 @@
+// TODO For later
+/*
 package com.own.expertfinder.service;
 
 import com.own.expertfinder.model.Visitor;
@@ -25,10 +27,6 @@ public class VisitorService {
         return visitorRepository.findByUserId(userId);
     }
 
-    /*
-    public Visitor add(Visitor visitor) {
-        return visitorRepository.save(visitor);
-    }
-     */
-
 }
+
+ */

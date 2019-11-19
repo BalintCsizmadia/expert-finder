@@ -3,26 +3,18 @@ package com.own.expertfinder.controller;
 import com.own.expertfinder.dto.RegisterDTO;
 import com.own.expertfinder.exception.UserAlreadyExistsException;
 import com.own.expertfinder.model.User;
-import com.own.expertfinder.service.CustomerService;
 import com.own.expertfinder.service.UserService;
-import com.own.expertfinder.service.VisitorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 public class UserController {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private VisitorService visitorService;
-
-    private CustomerService customerService;
 
     @RequestMapping(path = "/register",
             method = RequestMethod.POST

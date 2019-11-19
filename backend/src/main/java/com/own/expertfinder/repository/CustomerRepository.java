@@ -1,6 +1,5 @@
 package com.own.expertfinder.repository;
 
-import com.own.expertfinder.dto.ProfessionDTO;
 import com.own.expertfinder.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,7 +28,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
             "(user_id, email, first_name, last_name, phone_number, profession_id, registration_date) " +
             "VALUES (?1, ?2, ?3, ?4, ?5, ?6, NOW())",
             nativeQuery = true)
-    int add(
+    void save(
             Integer userId,
             String email,
             String firstName,

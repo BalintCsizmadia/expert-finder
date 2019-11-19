@@ -25,7 +25,6 @@ public class AuthController {
     @Autowired
     private CustomerService customerService;
 
-
     @GetMapping("")
     public RegisteredUser get(Principal principal) {
         User user = userService.getUserByName(principal.getName());
