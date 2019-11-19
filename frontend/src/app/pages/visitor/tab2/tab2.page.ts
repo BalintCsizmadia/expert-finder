@@ -18,6 +18,9 @@ const MAP_TILE_LAYER = 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png';
 const MAP_TILE_ATTRIBUTION = '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>';
 const COORDINATES_OF_BUDAPEST: LatLng = new LatLng(47.498, 19.05);
 const DEFAULT_ZOOM_LEVEL = 12;
+// icons
+const AVAILABLE_ICON_PATH = 'assets/icon/available.png';
+const UNAVAILABLE_ICON_PATH = 'assets/icon/unavailable.png';
 // map
 let map: Map;
 // storage for logged in user's marker(s)
@@ -56,7 +59,6 @@ export class Tab2Page implements OnInit, AfterContentInit {
     if (userId !== 0) {
       this.userService.getUserById(userId).subscribe({
         next: (usr: User) => {
-          console.log(usr);
           this.currentUser = usr;
         },
         error: (err: any) => {
@@ -70,8 +72,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
     this.professionService.getAllProfessions().then((professions: Profession[]) => {
       this.professions = professions;
     });
-    // MAP INITIALIZATION
-    // currently the map's starting postion points to Budapest, Hungary
+    // MAP INITIALIZATION / currently the map's starting postion points to Budapest, Hungary
     map = new Map('map').setView(COORDINATES_OF_BUDAPEST, DEFAULT_ZOOM_LEVEL);
     const tileLayerOptions: TileLayerOptions = {
       attribution: MAP_TILE_ATTRIBUTION,
@@ -89,7 +90,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
       maxZoom: 16,
       timeout: 10000
     };
-    // using W3C watchPosition method. You can later stop watching using map.stopLocate() method.
+    // using W3C watchPosition method. You can later stop watching using map.stopLocate() method
     map.locate(locateOptions);
     map.on('locationfound', this.onLocationFound);
     map.on('locationerror', this.onLocationError);
@@ -127,9 +128,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
         this.onLocationClick(myMarker, location.latlng);
       });
     markers.push(myMarker);
-    // TODO use it or not?
-    // circle(location.latlng, location.accuracy, { opacity: 0.4, fillOpacity: 0.1 }).addTo(map);
-    // uses for relocation
+    // use for relocation
     this.currentPosition = this.getCurrentUserPosition(location);
   }
 
@@ -252,7 +251,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
 
   // TODO REFACTOR
   addCustomersToMap = () => {
-    // remove previous (customer) markers
+    // remove previous (customer's) marker
     customerMarkers.map((singleMarker: Marker) => {
       map.removeLayer(singleMarker);
     });
@@ -278,7 +277,6 @@ export class Tab2Page implements OnInit, AfterContentInit {
           this.customerService.getCustomers().subscribe({
             next: (customersArray: Customer[]) => {
               customersArray.map((customer: Customer) => {
-                // rewrite 'position' data member with its parsed value
                 customer.position = this.parseCustomerPositionToJSON(customer.position);
                 this.addLocationIconToMap(customer);
               });
@@ -294,7 +292,7 @@ export class Tab2Page implements OnInit, AfterContentInit {
       },
       complete: () => {
         // complete
-        console.log('Subscribe completed');
+        console.log('Customers added');
       }
     });
   }
@@ -308,7 +306,6 @@ export class Tab2Page implements OnInit, AfterContentInit {
   }
 
   addLocationIconToMap = (customer: Customer) => {
-    const customerStatus = customer.status;
     if (typeof customer.position !== 'string' && customer.position.latitude && customer.position.longitude) {
       const latlng: LatLng = new LatLng(customer.position.latitude, customer.position.longitude);
       const mrkr = marker(latlng, {
@@ -316,9 +313,9 @@ export class Tab2Page implements OnInit, AfterContentInit {
           iconSize: [31, 31],
           iconAnchor: [13, 41],
           popupAnchor: [0, -40],
-          iconUrl: customerStatus === Status.AVAILABLE ? 'assets/icon/available.png' : 'assets/icon/unavailable.png',
+          iconUrl: customer.status === Status.AVAILABLE ? AVAILABLE_ICON_PATH : UNAVAILABLE_ICON_PATH,
         }),
-        opacity: customerStatus === Status.AVAILABLE ? 1 : 0.8
+        opacity: customer.status === Status.AVAILABLE ? 1 : 0.8
       })
         .addTo(map)
         .on('click', () => {
