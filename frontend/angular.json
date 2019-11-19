@@ -46,11 +46,6 @@
               {
                 "input": "src/assets/leaflet/leaflet.css"
               }
-            ],
-            "scripts": [
-              {
-                "input": "src/assets/leaflet/leaflet.js"
-              }
             ]
           },
           "configurations": {
